@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardConroller;
+use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/stock-dashboard', [DashboardConroller::class, 'index'])->name('stocks.index');
 
+    Route::resource('materials', MaterialController::class);
 });
 
 require __DIR__.'/auth.php';
