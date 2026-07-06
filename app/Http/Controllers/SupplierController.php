@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreSupplierRequest;
+use App\Http\Requests\UpdateSupplierRequest;
 use App\Models\Supplier;
-use Illuminate\Http\Request;
 
 class SupplierController extends Controller
 {
@@ -12,7 +13,9 @@ class SupplierController extends Controller
      */
     public function index()
     {
-        //
+        $suppliers = Supplier::latest()->paginate(10);
+
+        return view('stocks.suppliers.list', compact('suppliers'));
     }
 
     /**
@@ -20,15 +23,22 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        //
+        $supplier = new Supplier();
+
+        return view('stocks.suppliers.create', compact('supplier'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreSupplierRequest $request)
     {
-        //
+        Supplier::create($request->validated());
+
+        return redirect()->route('suppliers.index')->with([
+            'message' => 'Supplier created successfully!',
+            'alert-type' => 'success',
+        ]);
     }
 
     /**
@@ -36,7 +46,7 @@ class SupplierController extends Controller
      */
     public function show(Supplier $supplier)
     {
-        //
+        return view('stocks.suppliers.view', compact('supplier'));
     }
 
     /**
@@ -44,15 +54,20 @@ class SupplierController extends Controller
      */
     public function edit(Supplier $supplier)
     {
-        //
+        return view('stocks.suppliers.edit', compact('supplier'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Supplier $supplier)
+    public function update(UpdateSupplierRequest $request, Supplier $supplier)
     {
-        //
+        $supplier->update($request->validated());
+
+        return redirect()->route('suppliers.index')->with([
+            'message' => 'Supplier updated successfully!',
+            'alert-type' => 'success',
+        ]);
     }
 
     /**
@@ -60,6 +75,11 @@ class SupplierController extends Controller
      */
     public function destroy(Supplier $supplier)
     {
-        //
+        $supplier->delete();
+
+        return redirect()->route('suppliers.index')->with([
+            'message' => 'Supplier deleted successfully!',
+            'alert-type' => 'success',
+        ]);
     }
 }

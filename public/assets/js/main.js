@@ -147,24 +147,46 @@
 
     // Initialize user profile values in UI. Provide a window.adminHMDUser object to override defaults.
     function initUserProfile() {
-      var user = window.adminHMDUser || { name: "Test User", workspace: "Active Workspace", avatar: "/assets/images/avatar/avatar-2.jpg" };
+
+      var user = window.adminHMDUser || {
+        name: "Guest",
+        role: "Kitchen Staff",
+        avatar: "/assets/images/avatar/avatar-2.jpg"
+      };
 
       var sidebarNameEl = document.querySelector(".sidebar-user strong");
-      var sidebarWorkspaceEl = document.querySelector(".sidebar-user small");
+      var sidebarRoleEl = document.querySelector(".sidebar-user small");
       var sidebarAvatar = document.querySelector(".sidebar-user .avatar-img");
+
       var profileNameEls = document.querySelectorAll(".profile-name");
+      var profileRoleEls = document.querySelectorAll(".profile-role");
       var profileAvatarEls = document.querySelectorAll(".profile-button .avatar-img, .profile-button img");
 
       if (sidebarNameEl) {
-        sidebarNameEl.textContent = user.name ;
+        sidebarNameEl.textContent = user.name;
       }
-      if (sidebarWorkspaceEl) sidebarWorkspaceEl.textContent = user.workspace;
-      if (sidebarAvatar && user.avatar) { sidebarAvatar.src = user.avatar; sidebarAvatar.alt = user.name; }
 
-      Array.prototype.forEach.call(profileNameEls, function (el) {
-        el.textContent = user.name ;
+      if (sidebarRoleEl) {
+        sidebarRoleEl.textContent = user.role;
+      }
+
+      if (sidebarAvatar && user.avatar) {
+        sidebarAvatar.src = user.avatar;
+        sidebarAvatar.alt = user.name;
+      }
+
+      profileNameEls.forEach(function (el) {
+        el.textContent = user.name;
       });
-      Array.prototype.forEach.call(profileAvatarEls, function (img) { if (user.avatar) img.src = user.avatar; if (user.name) img.alt = user.name; });
+
+      profileRoleEls.forEach(function (el) {
+        el.textContent = user.role;
+      });
+
+      profileAvatarEls.forEach(function (img) {
+        if (user.avatar) img.src = user.avatar;
+        img.alt = user.name;
+      });
     }
 
     initUserProfile();
@@ -242,6 +264,6 @@
     }
 
 
-    
+
   });
 })();

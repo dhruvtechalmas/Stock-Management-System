@@ -39,7 +39,7 @@
         <!-- Masters Heading -->
         <div class="sidebar-heading">MASTERS</div>
 
-            <a class="nav-link" href="{{ url('material-category') }}">
+        <a class="nav-link" href="{{ url('material-category') }}">
           <span class="nav-icon"><i class="bi bi-tags" aria-hidden="true"></i></span>
           <span class="nav-text">Material Category</span>
         </a>
@@ -152,19 +152,62 @@
 
             <div class="dropdown">
               <button class="profile-button dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
-                <img class="avatar-img avatar-sm" src="{{url('/assets/images/avatar/avatar-2.jpg')}}" alt="Admin Hasan">
-                <span class="profile-name d-none d-sm-inline">Admin Hasan</span>
+                data-bs-auto-close="outside" aria-expanded="false">
+
+                <img class="avatar-img avatar-sm" src="{{ asset('assets/images/avatar/avatar-2.jpg') }}"
+                  alt="{{ auth()->user()->name }}">
+
+                <div class="d-none d-sm-flex flex-column text-start ms-2">
+                  <span class="profile-name fw-semibold">
+                    {{ auth()->user()->name }}
+                  </span>
+
+                  <small class="text-muted">
+                    ({{ auth()->user()->roles->first()?->name ?? 'Kitchen Staff' }})
+                  </small>
+                </div>
+
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="profile">Profile</a></li>
-                <li><a class="dropdown-item" href="settings">Account settings</a></li>
+
+                {{-- <li>
+                  <h6 class="dropdown-header">
+                    {{ auth()->user()->name }}
+                  </h6>
+                </li>
+
+                <li>
+                  <small class="dropdown-item-text text-muted">
+                    {{ auth()->user()->email }}
+                  </small>
+                </li> --}}
+
                 <li>
                   <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item" href="{{ route('logout') }}">Sign out</a></li>
+
+                <li>
+                  <a class="dropdown-item" href="/profile">
+                    <i class="bi bi-person me-2"></i>
+                    Profile
+                  </a>
+                </li>
+
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+
+                <li>
+                  <a class="dropdown-item text-danger" href="{{ route('logout') }}">
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Logout
+                  </a>
+                </li>
+
               </ul>
             </div>
           </div>
         </div>
       </nav>
+
+
