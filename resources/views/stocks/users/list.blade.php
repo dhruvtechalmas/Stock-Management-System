@@ -3,20 +3,20 @@
 @section('content')
 
   {{-- Add Material Modal --}}
-  <div class="modal fade" id="materialModal" tabindex="-1">
+  <div class="modal fade" id="userModal" tabindex="-1">
     <div class="modal-dialog modal-md modal-dialog-centered">
       <div class="modal-content">
 
         <div class="modal-header">
           <h5 class="modal-title btn btn-outline-secondary">
-            Add Material
+            Add User
           </h5>
 
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
         <div class="modal-body">
-          @include('stocks.materials.create')
+          @include('stocks.users.create')
         </div>
 
       </div>
@@ -37,16 +37,16 @@
           </span>
 
           <div>
-            <p class="eyebrow mb-1">Master</p>
-            <h1 class="h3 mb-1">Materials</h1>
+            <p class="eyebrow mb-1">Setting</p>
+            <h1 class="h3 mb-1">Users</h1>
           </div>
 
         </div>
 
-        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#materialModal">
+        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#userModal">
 
           <i class="bi bi-plus-circle"></i>
-          Add Material
+          Add User
 
         </button>
 
@@ -58,8 +58,8 @@
 
           <div class="d-flex align-items-center gap-3">
 
-            <input class="form-control form-control-sm table-search" type="search" placeholder="Search Material"
-              data-table-search="materialsTable">
+            <input class="form-control form-control-sm table-search" type="search" placeholder="Search User"
+              data-table-search="usersTable">
 
           </div>
           <a href="#" class="btn btn-outline-secondary btn-sm ">
@@ -71,80 +71,66 @@
 
 
         <div class="table-responsive">
-          <table class="table align-middle mb-0" id="materialsTable" data-searchable-table>
+          <table class="table align-middle mb-0" id="usersTable" data-searchable-table>
             <thead>
               <tr>
                 <th>#</th>
-                <th>Image</th>
-                <th>Material Name</th>
-                <th>Material Category</th>
-                <th>Unit</th>
-                <th>Current Stock</th>
-                <th>Minimum Stock</th>
-                <th>Status</th>
+                <th>User Name</th>
+                <th>User Email</th>
+                <th>User Role</th>
+                {{-- <th>Status</th> --}}
                 <th>Created At</th>
                 <th>Action</th>
               </tr>
             </thead>
 
             <tbody>
-              @foreach($materials as $material)
+              @foreach($users as $user)
                 <tr>
 
                   <td>{{ $loop->iteration }}</td>
 
-                  {{-- Image --}}
+                  {{-- User Name --}}
+                  <td>{{ $user->name }}</td>
+
+                  {{-- User Email --}}
+                  <td>{{ $user->email }}</td>
+
+                  {{-- User Role --}}
                   <td>
-                    @if($material->image)
-                      <img src="{{ asset('storage/' . $material->image) }}" width="60" height="60"
-                        class="rounded object-fit-cover" alt="{{ $material->material_name }}">
+                    @if($user->roles->isNotEmpty())
+                      <span class="badge bg-primary">
+                        {{ $user->roles->first()->name }}
+                      </span>
                     @else
-                      <img src="{{ asset('images/no-image.png') }}" width="60" height="60" class="rounded object-fit-cover"
-                        alt="No Image">
+                      <span class="badge bg-secondary">
+                        No Role
+                      </span>
                     @endif
                   </td>
 
-                  {{-- Material Name --}}
-                  <td>{{ $material->material_name }}</td>
-
-                  {{-- Category --}}
-                  <td>{{ $material->category->category_name ?? '-' }}</td>
-
-                  {{-- Unit --}}
-                  <td>{{ $material->unit }}</td>
-
-                  {{-- Current Stock --}}
+                  {{-- Status
                   <td>
-                    <span class="badge bg-primary">
-                      {{ $material->current_stock }}
+                    <span class="badge {{ $user->status == 'Active' ? 'bg-success' : 'bg-danger' }}">
+                      {{ $user->status }}
                     </span>
-                  </td>
-
-                  {{-- Minimum Stock --}}
-                  <td>{{ $material->minimum_stock }}</td>
-
-                  {{-- Status --}}
-                  <td>
-                    <span class="badge {{ $material->status == 'Active' ? 'bg-success' : 'bg-danger' }}">
-                      {{ $material->status }}
-                    </span>
-                  </td>
-
+                  </td> --}}
+                  
                   {{-- Created At --}}
                   <td style="white-space: nowrap;">
                     <i class="bi bi-calendar3 text-primary me-2"></i>
-                    {{ $material->created_at->format('M d, Y') }}
+                    {{ $user->created_at->format('M d, Y') }}
                   </td>
 
                   {{-- Action --}}
                   <td style="white-space: nowrap;">
 
                     <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
-                      data-bs-target="#editMaterialModal{{ $material->id }}">
+                      data-bs-target="#editUserModal{{ $user->id }}">
                       <i class="bi bi-pencil-square"></i>
                     </button>
 
-                    <form action="{{ route('materials.destroy', $material->id) }}" method="POST" class="d-inline">
+                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline">
                       @csrf
                       @method('DELETE')
 
@@ -153,7 +139,7 @@
                       </button>
                     </form>
 
-                    <a href="{{ route('materials.show', $material->id) }}" class="btn btn-outline-info btn-sm">
+                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-outline-info btn-sm">
                       <i class="bi bi-eye"></i>
                     </a>
 
@@ -161,7 +147,7 @@
 
                 </tr>
 
-                @include('stocks.materials.edit', ['material' => $material])
+                @include('stocks.users.edit', ['user' => $user])
 
               @endforeach
             </tbody>
@@ -170,7 +156,7 @@
 
         {{-- Pagination controls --}}
         <div class="d-flex justify-content-end mt-3">
-          {{ $materials->links('pagination::bootstrap-4') }}
+          {{ $users->links('pagination::bootstrap-4') }}
         </div>
       </section>
     </div>
@@ -205,10 +191,31 @@
     });
   </script>
 
+
+<script>
+    function togglePassword(fieldId, button) {
+
+        const input = document.getElementById(fieldId);
+        const icon = button.querySelector('i');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+</script>
+
+
+
   @if ($errors->any())
     <script>
       document.addEventListener('DOMContentLoaded', function () {
-        const modal = new bootstrap.Modal(document.getElementById('materialModal'));
+        const modal = new bootstrap.Modal(document.getElementById('userModal'));
         modal.show();
       });
     </script>
@@ -219,11 +226,11 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    const modal = new bootstrap.Modal(document.getElementById('materialModal'));
+    const modal = new bootstrap.Modal(document.getElementById('userModal'));
     modal.show();
 
-    document.getElementById('cancelMaterialBtn').addEventListener('click', function () {
-        window.location.href = "{{ route('materials.index') }}";
+    document.getElementById('cancelUserBtn').addEventListener('click', function () {
+        window.location.href = "{{ route('users.index') }}";
     });
 
 });

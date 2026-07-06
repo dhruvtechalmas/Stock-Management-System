@@ -1,22 +1,11 @@
-{{-- Show Validation Errors --}}
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
 <div class="px-2 px-md-3">
 
-    <form action="{{ route('materials.store') }}" method="POST" class="needs-validation" novalidate>
+    <form action="{{ route('materials.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="row g-3">
 
-            <!-- Material Name -->
+            {{-- Material Name --}}
             <div class="col-md-12">
                 <label class="form-label">Material Name</label>
 
@@ -25,13 +14,13 @@
                     placeholder="Enter Material Name">
 
                 @error('material_name')
-                    <div class="invalid-feedback">
+                    <div class="invalid-feedback d-block">
                         {{ $message }}
                     </div>
                 @enderror
             </div>
 
-            {{-- Material Categrory --}}
+            {{-- Category --}}
             <div class="col-md-12">
                 <label class="form-label">Category</label>
 
@@ -40,7 +29,7 @@
 
                     <option value="">Select Category</option>
 
-                    @foreach ($categories as $category)
+                    @foreach($categories as $category)
                         <option value="{{ $category->id }}" {{ old('material_category_id') == $category->id ? 'selected' : '' }}>
                             {{ $category->category_name }}
                         </option>
@@ -49,12 +38,13 @@
                 </select>
 
                 @error('material_category_id')
-                    <div class="invalid-feedback">
+                    <div class="invalid-feedback d-block">
                         {{ $message }}
                     </div>
                 @enderror
             </div>
-            <!-- Unit -->
+
+            {{-- Unit --}}
             <div class="col-md-6">
                 <label class="form-label">Unit</label>
 
@@ -68,13 +58,28 @@
                 </select>
 
                 @error('unit')
-                    <div class="invalid-feedback">
+                    <div class="invalid-feedback d-block">
                         {{ $message }}
                     </div>
                 @enderror
             </div>
 
-            <!-- Minimum Stock -->
+            {{-- Current Stock --}}
+            <div class="col-md-6">
+                <label class="form-label">Current Stock</label>
+
+                <input type="number" name="current_stock"
+                    class="form-control @error('current_stock') is-invalid @enderror" value="{{ old('current_stock') }}"
+                    min="0" placeholder="Enter Current Stock">
+
+                @error('current_stock')
+                    <div class="invalid-feedback d-block">
+                        {{ $message }}
+                    </div>
+                @enderror
+            </div>
+
+            {{-- Minimum Stock --}}
             <div class="col-md-6">
                 <label class="form-label">Minimum Stock</label>
 
@@ -83,13 +88,13 @@
                     min="0" placeholder="Enter Minimum Stock">
 
                 @error('minimum_stock')
-                    <div class="invalid-feedback">
+                    <div class="invalid-feedback d-block">
                         {{ $message }}
                     </div>
                 @enderror
             </div>
 
-            <!-- Description -->
+            {{-- Description --}}
             <div class="col-md-12">
                 <label class="form-label">Description</label>
 
@@ -97,13 +102,31 @@
                     placeholder="Enter Description">{{ old('description') }}</textarea>
 
                 @error('description')
-                    <div class="invalid-feedback">
+                    <div class="invalid-feedback d-block">
                         {{ $message }}
                     </div>
                 @enderror
             </div>
 
-            <!-- Status -->
+            {{-- Image --}}
+            <div class="col-md-12">
+                <label class="form-label">Material Image</label>
+
+                <input type="file" name="image" class="form-control @error('image') is-invalid @enderror"
+                    accept=".jpg,.jpeg,.png,.webp">
+
+                <div class="form-text">
+                    Allowed: JPG, JPEG, PNG, WEBP
+                </div>
+
+                @error('image')
+                    <div class="invalid-feedback d-block">
+                        {{ $message }}
+                    </div>
+                @enderror
+            </div>
+
+            {{-- Status --}}
             <div class="col-md-12">
                 <label class="form-label">Status</label>
 
@@ -111,18 +134,18 @@
 
                     <option value="">Select Status</option>
 
-                    <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>
+                    <option value="Active" {{ old('status') == 'Active' ? 'selected' : '' }}>
                         Active
                     </option>
 
-                    <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>
+                    <option value="Inactive" {{ old('status') == 'Inactive' ? 'selected' : '' }}>
                         Inactive
                     </option>
 
                 </select>
 
                 @error('status')
-                    <div class="invalid-feedback">
+                    <div class="invalid-feedback d-block">
                         {{ $message }}
                     </div>
                 @enderror
@@ -132,15 +155,13 @@
 
         <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
 
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            <button type="button" id="cancelMaterialBtn" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                 Cancel
             </button>
 
             <button type="submit" class="btn btn-primary">
-
                 <i class="bi bi-check-circle"></i>
                 Create Material
-
             </button>
 
         </div>
@@ -148,3 +169,4 @@
     </form>
 
 </div>
+

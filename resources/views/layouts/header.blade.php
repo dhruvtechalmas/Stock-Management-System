@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="{{ url('/assets/css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url('/assets/vendors/bootstrap-icons/bootstrap-icons.css') }}">
   <link rel="stylesheet" href="{{ url('/assets/css/style.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
 <body>
@@ -18,7 +19,7 @@
 
     <aside class="admin-sidebar" id="adminSidebar" aria-label="Main navigation">
       <div class="sidebar-header">
-        <a class="brand-mark" href="{{ url('/stock-dashboad') }}" aria-label="adminHMD dashboard">
+        <a class="brand-mark" href="{{ route('stocks.index') }}" aria-label="adminHMD dashboard">
           <span class="brand-icon"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i></span>
           <span class="brand-copy">
             <span class="brand-title">Stock Management</span>
@@ -30,13 +31,18 @@
       <nav class="sidebar-nav">
 
         <!-- Dashboard -->
-        <a class="nav-link active" href="{{ url('/stock-dashboard') }}" aria-current="page">
+        <a class="nav-link active" href="{{ route('stocks.index') }}" aria-current="page">
           <span class="nav-icon"><i class="bi bi-speedometer2"></i></span>
           <span class="nav-text">Dashboard</span>
         </a>
 
         <!-- Masters Heading -->
         <div class="sidebar-heading">MASTERS</div>
+
+            <a class="nav-link" href="{{ url('material-category') }}">
+          <span class="nav-icon"><i class="bi bi-tags" aria-hidden="true"></i></span>
+          <span class="nav-text">Material Category</span>
+        </a>
 
         <a class="nav-link" href="{{ url('materials') }}">
           <span class="nav-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>

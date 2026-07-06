@@ -8,6 +8,7 @@ use App\Models\Material;
 use App\Models\MaterialCategory;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Storage;
 
 class MaterialController extends Controller  // implements HasMiddleware
 {
@@ -30,7 +31,7 @@ class MaterialController extends Controller  // implements HasMiddleware
 
         $materials = Material::latest()
             ->paginate(25);
-              $categories = MaterialCategory::where('status', 'Active')->get();
+        $categories = MaterialCategory::where('status', 'Active')->get();
 
         return view('stocks.materials.list', compact('materials', 'categories'));
     }
@@ -41,7 +42,7 @@ class MaterialController extends Controller  // implements HasMiddleware
     public function create()
     {
         $material = new Material();
-         $categories = MaterialCategory::where('status', 'Active')->get();
+        $categories = MaterialCategory::where('status', 'Active')->get();
 
         return view('stocks.materials.create', compact('material', 'categories'));
     }
@@ -51,7 +52,13 @@ class MaterialController extends Controller  // implements HasMiddleware
      */
     public function store(StoreMaterialRequest $request)
     {
-        Material::create($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('materials', 'public');
+        }
+
+        Material::create($data);
 
         return redirect()->route('materials.index')->with([
             'message' => 'Material created successfully!',
@@ -80,7 +87,18 @@ class MaterialController extends Controller  // implements HasMiddleware
      */
     public function update(UpdateMaterialRequest $request, Material $material)
     {
-        $material->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+
+            if ($material->image) {
+                Storage::disk('public')->delete($material->image);
+            }
+
+            $data['image'] = $request->file('image')->store('materials', 'public');
+        }
+
+        $material->update($data);
 
         return redirect()->route('materials.index')->with([
             'message' => 'Material updated successfully!',

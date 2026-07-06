@@ -8,8 +8,10 @@ class Material extends Model
 {
     protected $fillable = [
         'material_name',
-        'category',
+         'material_category_id',
         'unit',
+        'image',
+        'current_stock',
         'minimum_stock',
         'description',
         'status',
