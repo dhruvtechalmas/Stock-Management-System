@@ -14,4 +14,10 @@ class Supplier extends Model
         'address',
         'is_active',
     ];
+
+
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class);
+    }
 }

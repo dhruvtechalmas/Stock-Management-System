@@ -54,7 +54,11 @@
                     <option value="Kg" {{ old('unit') == 'Kg' ? 'selected' : '' }}>Kg</option>
                     <option value="Liter" {{ old('unit') == 'Liter' ? 'selected' : '' }}>Liter</option>
                     <option value="Piece" {{ old('unit') == 'Piece' ? 'selected' : '' }}>Piece</option>
-
+                    <option value="Gram" {{ old('unit') == 'Gram' ? 'selected' : '' }}>Gram</option>
+                    <option value="Milligram" {{ old('unit') == 'Milligram' ? 'selected' : '' }}>Milligram</option>
+                    <option value="Box" {{ old('unit') == 'Box' ? 'selected' : '' }}>Box</option>
+                    <option value="Pack" {{ old('unit') == 'Pack' ? 'selected' : '' }}>Pack</option>
+                    <option value="Set" {{ old('unit') == 'Set' ? 'selected' : '' }}>Set</option>
                 </select>
 
                 @error('unit')
@@ -85,7 +89,7 @@
 
                 <input type="number" name="minimum_stock"
                     class="form-control @error('minimum_stock') is-invalid @enderror" value="{{ old('minimum_stock') }}"
-                    min="0" placeholder="Enter Minimum Stock">
+                    min="0" step="0.01" placeholder="Enter Minimum Stock">
 
                 @error('minimum_stock')
                     <div class="invalid-feedback d-block">

@@ -205,6 +205,7 @@
     });
   </script>
 
+  {{-- In show only model form error --}}
   @if ($errors->any())
     <script>
       document.addEventListener('DOMContentLoaded', function () {
@@ -214,20 +215,20 @@
     </script>
   @endif
 
-
+  {{-- when cancle form then refresh --}}
   @if ($errors->any())
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
 
-    const modal = new bootstrap.Modal(document.getElementById('materialModal'));
-    modal.show();
+        const modal = new bootstrap.Modal(document.getElementById('materialModal'));
+        modal.show();
 
-    document.getElementById('cancelMaterialBtn').addEventListener('click', function () {
-        window.location.href = "{{ route('materials.index') }}";
-    });
+        document.getElementById('cancelMaterialBtn').addEventListener('click', function () {
+          window.location.href = "{{ route('materials.index') }}";
+        });
 
-});
-</script>
-@endif
+      });
+    </script>
+  @endif
 
 @endsection

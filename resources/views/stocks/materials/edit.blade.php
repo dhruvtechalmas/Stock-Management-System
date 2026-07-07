@@ -105,6 +105,26 @@
                                         Piece
                                     </option>
 
+                                    <option value="Gram" {{ old('unit', $material->unit) == 'Gram' ? 'selected' : '' }}>
+                                        Gram
+                                    </option>
+
+                                    <option value="Milligram" {{ old('unit', $material->unit) == 'Milligram' ? 'selected' : '' }}>
+                                        Milligram
+                                    </option>
+
+                                    <option value="Box" {{ old('unit', $material->unit) == 'Box' ? 'selected' : '' }}>
+                                        Box
+                                    </option>
+
+                                    <option value="Set" {{ old('unit', $material->unit) == 'Set' ? 'selected' : '' }}>
+                                        Set
+                                    </option>
+
+                                    <option value="Pack" {{ old('unit', $material->unit) == 'Pack' ? 'selected' : '' }}>
+                                        Pack
+                                    </option>
+
                                 </select>
 
                                 {{-- @error('unit')
@@ -120,7 +140,7 @@
 
                                 <input type="number" name="current_stock"
                                     class="form-control @error('current_stock') is-invalid @enderror"
-                                    value="{{ old('current_stock', $material->current_stock) }}" min="0">
+                                    value="{{ old('current_stock', $material->current_stock) }}" min="0" step="0.01" placeholder="Enter Current Stock">
 
                                 {{-- @error('current_stock')
                                     <div class="invalid-feedback">
@@ -135,7 +155,7 @@
 
                                 <input type="number" name="minimum_stock"
                                     class="form-control @error('minimum_stock') is-invalid @enderror"
-                                    value="{{ old('minimum_stock', $material->minimum_stock) }}" min="0">
+                                    value="{{ old('minimum_stock', $material->minimum_stock) }}" min="0" step="0.01" placeholder="Enter Minimum Stock">
 
                                 {{-- @error('minimum_stock')
                                     <div class="invalid-feedback">

@@ -22,7 +22,7 @@ class StoreMaterialRequest extends FormRequest
         return [
             'material_name' => 'required|string|max:255',
             'material_category_id' => 'required|exists:material_categories,id',
-            'unit' => 'required|in:Kg,Liter,Piece',
+            'unit' => 'required|in:Kg,Liter,Piece,Gram,Milliliter,Box,Pack,Set',
             'current_stock' => 'required|integer|min:0',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'minimum_stock' => 'required|integer|min:0',

@@ -25,7 +25,7 @@ class UpdateMaterialRequest extends FormRequest
 
             'material_category_id' => 'required|exists:material_categories,id',
 
-            'unit' => 'required|in:Kg,Liter,Piece',
+            'unit' => 'required|in:Kg,Liter,Piece,Gram,Milliliter,Box,Pack,Set',
 
             'current_stock' => 'required|integer|min:0',
 
