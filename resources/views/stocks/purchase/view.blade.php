@@ -233,7 +233,7 @@
 
                             <td>
 
-                                {{ $item->quantity }}
+                                {{ number_format($item->quantity, 2) }}
 
                             </td>
 

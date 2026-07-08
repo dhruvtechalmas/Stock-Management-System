@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardConroller;
 use App\Http\Controllers\MaterialCategoryController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\MaterialRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SupplierController;
@@ -18,27 +19,58 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    //Dashboard Route 
-    Route::get('/stock-dashboard', [DashboardConroller::class, 'index'])->name('stocks.index');
+    /*
+    |--------------------------------------------------------------------------
+    | Profile
+    |--------------------------------------------------------------------------
+    */
 
-    //Material Routes
-    Route::resource('materials', MaterialController::class);
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
 
-    //Material Category Routes
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/stock-dashboard', [DashboardConroller::class, 'index'])
+        ->name('stocks.index');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Masters
+    |--------------------------------------------------------------------------
+    */
+
     Route::resource('material-category', MaterialCategoryController::class);
 
-    //User Routes
-    Route::resource('users', UserController::class);
-    
-    //Supplier Routes
+    Route::resource('materials', MaterialController::class);
+
     Route::resource('suppliers', SupplierController::class);
 
-    //Purchase Routes
+    Route::resource('users', UserController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Transactions
+    |--------------------------------------------------------------------------
+    */
+
     Route::resource('purchases', PurchaseController::class);
+
+    Route::resource('material-requests', MaterialRequestController::class);
+    Route::patch('material-requests/{material_request}/approve', [MaterialRequestController::class, 'approve'])->name('material-requests.approve');
+    Route::patch('material-requests/{material_request}/reject', [MaterialRequestController::class, 'reject'])->name('material-requests.reject');
+
+
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

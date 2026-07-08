@@ -5,27 +5,30 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 
-class UserController extends Controller // implements HasMiddleware
+class UserController extends Controller implements HasMiddleware
 {
-    /*
     public static function middleware(): array
     {
         return [
+
             new Middleware('permission:user.index', only: ['index']),
+
             new Middleware('permission:user.create', only: ['create', 'store']),
-            new Middleware('permission:user.edit', only: ['edit', 'update']),
-            new Middleware('permission:user.delete', only: ['destroy']),
+
             new Middleware('permission:user.view', only: ['show']),
+
+            new Middleware('permission:user.edit', only: ['edit', 'update']),
+
+            new Middleware('permission:user.delete', only: ['destroy']),
+
         ];
     }
-    */
 
     /**
      * Display a listing of the resource.
@@ -36,7 +39,7 @@ class UserController extends Controller // implements HasMiddleware
             ->latest()
             ->paginate(25);
 
-           $roles = Role::where('name', 'Kitchen Staff')->get();
+        $roles = Role::where('name', 'Kitchen Staff')->get();
 
         return view('stocks.users.list', compact('users', 'roles'));
     }
@@ -46,9 +49,9 @@ class UserController extends Controller // implements HasMiddleware
      */
     public function create()
     {
-        $user = new User();
+        $user = new User;
 
-         $roles = Role::where('name', 'Kitchen Staff')->get();
+        $roles = Role::where('name', 'Kitchen Staff')->get();
 
         return view('stocks.users.create', compact('user', 'roles'));
     }
@@ -71,11 +74,11 @@ class UserController extends Controller // implements HasMiddleware
 
         $user = User::create($data);
 
-       $user->assignRole('Kitchen Staff');
+        $user->assignRole('Kitchen Staff');
 
         return redirect()->route('users.index')->with([
             'message' => 'User created successfully!',
-            'alert-type' => 'success'
+            'alert-type' => 'success',
         ]);
     }
 
@@ -115,7 +118,7 @@ class UserController extends Controller // implements HasMiddleware
         //         ->store('users', 'public');
         // }
 
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
@@ -127,7 +130,7 @@ class UserController extends Controller // implements HasMiddleware
 
         return redirect()->route('users.index')->with([
             'message' => 'User updated successfully!',
-            'alert-type' => 'success'
+            'alert-type' => 'success',
         ]);
     }
 
@@ -144,7 +147,7 @@ class UserController extends Controller // implements HasMiddleware
 
         return redirect()->route('users.index')->with([
             'message' => 'User deleted successfully!',
-            'alert-type' => 'success'
+            'alert-type' => 'success',
         ]);
     }
 }

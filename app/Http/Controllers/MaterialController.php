@@ -10,18 +10,24 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Storage;
 
-class MaterialController extends Controller  // implements HasMiddleware
+class MaterialController extends Controller implements HasMiddleware
 {
-    // public static function middleware(): array
-    // {
-    //     return [
-    //         new Middleware('permission:material.index', only: ['index']),
-    //         new Middleware('permission:material.create', only: ['create', 'store']),
-    //         new Middleware('permission:material.edit', only: ['edit', 'update']),
-    //         new Middleware('permission:material.delete', only: ['destroy']),
-    //         new Middleware('permission:material.view', only: ['show']),
-    //     ];
-    // }
+    public static function middleware(): array
+    {
+        return [
+
+            new Middleware('permission:material.index', only: ['index']),
+
+            new Middleware('permission:material.create', only: ['create', 'store']),
+
+            new Middleware('permission:material.view', only: ['show']),
+
+            new Middleware('permission:material.edit', only: ['edit', 'update']),
+
+            new Middleware('permission:material.delete', only: ['destroy']),
+
+        ];
+    }
 
     /**
      * Display a listing of the resource.
@@ -41,7 +47,7 @@ class MaterialController extends Controller  // implements HasMiddleware
      */
     public function create()
     {
-        $material = new Material();
+        $material = new Material;
         $categories = MaterialCategory::where('status', 'Active')->get();
 
         return view('stocks.materials.create', compact('material', 'categories'));
@@ -62,7 +68,7 @@ class MaterialController extends Controller  // implements HasMiddleware
 
         return redirect()->route('materials.index')->with([
             'message' => 'Material created successfully!',
-            'alert-type' => 'success'
+            'alert-type' => 'success',
         ]);
     }
 
@@ -102,7 +108,7 @@ class MaterialController extends Controller  // implements HasMiddleware
 
         return redirect()->route('materials.index')->with([
             'message' => 'Material updated successfully!',
-            'alert-type' => 'success'
+            'alert-type' => 'success',
         ]);
     }
 
@@ -115,7 +121,7 @@ class MaterialController extends Controller  // implements HasMiddleware
 
         return redirect()->route('materials.index')->with([
             'message' => 'Material deleted successfully!',
-            'alert-type' => 'success'
+            'alert-type' => 'success',
         ]);
     }
 }

@@ -5,9 +5,28 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSupplierRequest;
 use App\Http\Requests\UpdateSupplierRequest;
 use App\Models\Supplier;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class SupplierController extends Controller
+class SupplierController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+
+            new Middleware('permission:supplier.index', only: ['index']),
+
+            new Middleware('permission:supplier.create', only: ['create', 'store']),
+
+            new Middleware('permission:supplier.view', only: ['show']),
+
+            new Middleware('permission:supplier.edit', only: ['edit', 'update']),
+
+            new Middleware('permission:supplier.delete', only: ['destroy']),
+
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -23,7 +42,7 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        $supplier = new Supplier();
+        $supplier = new Supplier;
 
         return view('stocks.suppliers.create', compact('supplier'));
     }

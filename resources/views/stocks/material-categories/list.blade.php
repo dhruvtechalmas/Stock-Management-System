@@ -89,7 +89,9 @@
                             <th>Category Name</th>
                             <th>Status</th>
                             <th>Created At</th>
+                            @can('material-category.edit')                              
                             <th>Action</th>
+                            @endcan
 
                         </tr>
 
@@ -127,6 +129,7 @@
 
                                 <td style="white-space: nowrap;">
 
+                                    @can('material-category.edit')
                                     <button
                                         class="btn btn-outline-success btn-sm"
                                         data-bs-toggle="modal"
@@ -136,7 +139,9 @@
                                         <i class="bi bi-pencil-square"></i>
 
                                     </button>
+                                    @endcan
 
+                                    @can('material-category.delete')
                                     <form
                                         action="{{ route('material-category.destroy', $category->id) }}"
                                         method="POST"
@@ -155,6 +160,7 @@
                                         </button>
 
                                     </form>
+                                    @endcan
 
                                 </td>
 

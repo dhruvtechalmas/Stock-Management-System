@@ -139,11 +139,14 @@
                   {{-- Action --}}
                   <td style="white-space: nowrap;">
 
+                    @can('material.edit')
                     <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
                       data-bs-target="#editMaterialModal{{ $material->id }}">
                       <i class="bi bi-pencil-square"></i>
                     </button>
+                    @endcan
 
+                    @can('material.delete')
                     <form action="{{ route('materials.destroy', $material->id) }}" method="POST" class="d-inline">
                       @csrf
                       @method('DELETE')
@@ -152,6 +155,7 @@
                         <i class="bi bi-trash"></i>
                       </button>
                     </form>
+                    @endcan
 
                     <a href="{{ route('materials.show', $material->id) }}" class="btn btn-outline-info btn-sm">
                       <i class="bi bi-eye"></i>

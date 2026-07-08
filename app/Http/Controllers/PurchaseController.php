@@ -8,12 +8,30 @@ use App\Models\Material;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\Supplier;
-use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class PurchaseController extends Controller
+class PurchaseController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+
+            new Middleware('permission:purchase.index', only: ['index']),
+
+            new Middleware('permission:purchase.create', only: ['create', 'store']),
+
+            new Middleware('permission:purchase.view', only: ['show']),
+
+            new Middleware('permission:purchase.edit', only: ['edit', 'update']),
+
+            new Middleware('permission:purchase.delete', only: ['destroy']),
+
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -43,7 +61,7 @@ class PurchaseController extends Controller
 
         $materials = Material::where('status', 'Active')->get();
 
-        $purchaseNo = 'PUR-' . str_pad((Purchase::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT);
+        $purchaseNo = 'PUR-'.str_pad((Purchase::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT);
 
         return view('stocks.purchase.create', compact(
             'suppliers',
@@ -60,7 +78,7 @@ class PurchaseController extends Controller
         DB::transaction(function () use ($request) {
 
             $purchase = Purchase::create([
-                'purchase_no' => 'PUR-' . str_pad(Purchase::max('id') + 1, 6, '0', STR_PAD_LEFT),
+                'purchase_no' => 'PUR-'.str_pad(Purchase::max('id') + 1, 6, '0', STR_PAD_LEFT),
                 'supplier_id' => $request->supplier_id,
                 'invoice_no' => $request->invoice_no,
                 'purchase_date' => $request->purchase_date,
@@ -113,7 +131,7 @@ class PurchaseController extends Controller
         $purchase->load([
             'supplier',
             'user',
-            'items.material'
+            'items.material',
         ]);
 
         return view('stocks.purchase.view', compact('purchase'));
@@ -178,13 +196,13 @@ class PurchaseController extends Controller
 
                 if ($item['quantity'] <= 0) {
                     return back()->withErrors([
-                        'items' => 'Quantity must be greater than zero.'
+                        'items' => 'Quantity must be greater than zero.',
                     ])->withInput();
                 }
 
                 if ($item['unit_price'] <= 0) {
                     return back()->withErrors([
-                        'items' => 'Unit price must be greater than zero.'
+                        'items' => 'Unit price must be greater than zero.',
                     ])->withInput();
                 }
 

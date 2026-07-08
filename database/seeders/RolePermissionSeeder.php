@@ -117,6 +117,8 @@ class RolePermissionSeeder extends Seeder
             'material-request.index',
             'material-request.create',
             'material-request.view',
+            'material-request.edit',
+            'material-request.delete',
 
             // Material Consumption
             'material-consumption.index',

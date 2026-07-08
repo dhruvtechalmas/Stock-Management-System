@@ -5,9 +5,28 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMaterialCategoryRequest;
 use App\Http\Requests\UpdateMaterialCategoryRequest;
 use App\Models\MaterialCategory;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class MaterialCategoryController extends Controller
+class MaterialCategoryController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+
+            new Middleware('permission:material-category.index', only: ['index']),
+
+            new Middleware('permission:material-category.create', only: ['create', 'store']),
+
+            new Middleware('permission:material-category.view', only: ['show']),
+
+            new Middleware('permission:material-category.edit', only: ['edit', 'update']),
+
+            new Middleware('permission:material-category.delete', only: ['destroy']),
+
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -24,7 +43,7 @@ class MaterialCategoryController extends Controller
      */
     public function create()
     {
-        $category = new MaterialCategory();
+        $category = new MaterialCategory;
 
         return view('stocks.material-categories.create', compact('category'));
     }
@@ -42,14 +61,13 @@ class MaterialCategoryController extends Controller
         ]);
     }
 
-
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(MaterialCategory $material_category)
     {
         return view('stocks.material-categories.edit', [
-            'category' => $material_category
+            'category' => $material_category,
         ]);
     }
 

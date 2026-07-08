@@ -52,28 +52,35 @@
           <span class="nav-text">Material Master</span>
         </a>
 
+        @can('supplier.index')
         <a class="nav-link" href="{{ url('suppliers') }}">
           <span class="nav-icon"><i class="bi bi-truck" aria-hidden="true"></i></span>
           <span class="nav-text">Supplier Master</span>
         </a>
-
+        @endcan
         <!-- Transactions Heading -->
         <div class="sidebar-heading">TRANSACTIONS</div>
 
+        @can('purchase.index')     
         <a class="nav-link" href="{{ url('purchases') }}">
           <span class="nav-icon"><i class="bi bi-cart-plus" aria-hidden="true"></i></span>
           <span class="nav-text">Purchase</span>
         </a>
+        @endcan
 
+        
         <a class="nav-link" href="{{ url('material-requests') }}">
           <span class="nav-icon"><i class="bi bi-clipboard-check" aria-hidden="true"></i></span>
           <span class="nav-text">Material Request</span>
         </a>
-
-        <a class="nav-link" href="{{ url('dispatches') }}">
+      
+        @can('dispatches.index')
+          <a class="nav-link" href="{{ url('dispatches') }}">
           <span class="nav-icon"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></span>
           <span class="nav-text">Material Dispatch</span>
         </a>
+        @endcan
+        
 
         <a class="nav-link" href="{{ url('consumptions') }}">
           <span class="nav-icon"><i class="bi bi-basket" aria-hidden="true"></i></span>

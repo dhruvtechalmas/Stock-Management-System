@@ -50,6 +50,19 @@
     });
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+    flatpickr("#request_date", {
+        altInput: true,
+        altFormat: "d M Y",
+        dateFormat: "Y-m-d",
+        defaultDate: "{{ old('request_date') }}"
+    });
+
+});
+</script>
+
 </body>
 
 </html>
