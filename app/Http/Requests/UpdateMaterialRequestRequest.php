@@ -77,17 +77,21 @@ class UpdateMaterialRequestRequest extends FormRequest
         });
     }
 
-    protected function failedValidation(Validator $validator)
+protected function failedValidation(Validator $validator)
 {
     throw new HttpResponseException(
+
         redirect()
             ->back()
-            ->withErrors($validator)
             ->withInput()
-            ->with('edit_material_request_id', $this->route('material_request')->id)
+            ->withErrors($validator, 'edit')
+            ->with(
+                'edit_material_request_id',
+                $this->route('material_request')->id
+            )
+
     );
-}
-    /**
+}    /**
      * Custom Messages
      */
     public function messages(): array

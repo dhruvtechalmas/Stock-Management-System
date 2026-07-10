@@ -34,7 +34,8 @@
       <nav class="sidebar-nav">
 
         <!-- Dashboard -->
-        <a class="nav-link active" href="{{ route('stocks.index') }}" aria-current="page">
+        <a class="nav-link {{ request()->routeIs('material-dispatch.*') ? 'active' : '' }}"
+          href="{{ route('stocks.index') }}" aria-current="page">
           <span class="nav-icon"><i class="bi bi-speedometer2"></i></span>
           <span class="nav-text">Dashboard</span>
         </a>
@@ -42,52 +43,122 @@
         <!-- Masters Heading -->
         <div class="sidebar-heading">MASTERS</div>
 
-        <a class="nav-link" href="{{ url('material-category') }}">
+        <a class="nav-link {{ request()->routeIs('material-category.*') ? 'active' : '' }}"
+          href="{{ url('material-category') }}">
           <span class="nav-icon"><i class="bi bi-tags" aria-hidden="true"></i></span>
           <span class="nav-text">Material Category</span>
         </a>
 
-        <a class="nav-link" href="{{ url('materials') }}">
+        <a class="nav-link {{ request()->routeIs('materials.*') ? 'active' : '' }}" href="{{ url('materials') }}">
           <span class="nav-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
           <span class="nav-text">Material Master</span>
         </a>
 
         @can('supplier.index')
-        <a class="nav-link" href="{{ url('suppliers') }}">
-          <span class="nav-icon"><i class="bi bi-truck" aria-hidden="true"></i></span>
-          <span class="nav-text">Supplier Master</span>
-        </a>
+          <a class="nav-link {{ request()->routeIs('suppliers.*') ? 'active' : '' }}" href="{{ url('suppliers') }}">
+            <span class="nav-icon"><i class="bi bi-truck" aria-hidden="true"></i></span>
+            <span class="nav-text">Supplier Master</span>
+          </a>
         @endcan
         <!-- Transactions Heading -->
         <div class="sidebar-heading">TRANSACTIONS</div>
 
-        @can('purchase.index')     
-        <a class="nav-link" href="{{ url('purchases') }}">
-          <span class="nav-icon"><i class="bi bi-cart-plus" aria-hidden="true"></i></span>
-          <span class="nav-text">Purchase</span>
-        </a>
+        @can('purchase.index')
+          <a class="nav-link {{ request()->routeIs('purchases.*') ? 'active' : '' }}" href="{{ url('purchases') }}">
+            <span class="nav-icon"><i class="bi bi-cart-plus" aria-hidden="true"></i></span>
+            <span class="nav-text">Purchase</span>
+          </a>
         @endcan
 
-        
-        <a class="nav-link" href="{{ url('material-requests') }}">
+
+        <a class="nav-link {{ request()->routeIs('material-requests.*') ? 'active' : '' }}"
+          href="{{ url('material-requests') }}">
           <span class="nav-icon"><i class="bi bi-clipboard-check" aria-hidden="true"></i></span>
           <span class="nav-text">Material Request</span>
         </a>
-      
-        @can('dispatches.index')
-          <a class="nav-link" href="{{ url('dispatches') }}">
-          <span class="nav-icon"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></span>
-          <span class="nav-text">Material Dispatch</span>
-        </a>
-        @endcan
-        
 
-        <a class="nav-link" href="{{ url('consumptions') }}">
+        <!-- Material Dispatch -->
+        <div class="dispatch-dropdown">
+
+          <a class="nav-link d-flex align-items-center justify-content-between {{ request()->routeIs('material-dispatch.*') ? 'active' : '' }}"
+            data-bs-toggle="collapse" href="#materialDispatchMenu" role="button" aria-expanded="false"
+            aria-controls="materialDispatchMenu">
+
+            <div class="d-flex align-items-center">
+              <span class="nav-icon">
+                <i class="bi bi-truck"></i>
+              </span>
+
+              <span class="nav-text">
+                Material Dispatch
+              </span>
+            </div>
+
+            <i class="bi bi-chevron-down small"></i>
+
+          </a>
+
+          <div class="collapse" id="materialDispatchMenu">
+
+            <a class="nav-link  dispatch-child" href="{{ route('material-dispatch.index') }}#pendingSection">
+              <span class="nav-icon">
+                <i class="bi bi-hourglass-split"></i>
+              </span>
+              <span class="nav-text">Pending Requests</span>
+            </a>
+
+            <a class="nav-link  dispatch-child" href="{{ route('material-dispatch.index') }}#approvedSection">
+              <span class="nav-icon">
+                <i class="bi bi-check-circle"></i>
+              </span>
+              <span class="nav-text">Approved Requests</span>
+            </a>
+
+            <a class="nav-link  dispatch-child" href="{{ route('material-dispatch.index') }}#partialSection">
+              <span class="nav-icon">
+                <i class="bi bi-arrow-left-right"></i>
+              </span>
+              <span class="nav-text">Partially Dispatch</span>
+            </a>
+
+            <a class="nav-link  dispatch-child" href="{{ route('material-dispatch.index') }}#dispatchedSection">
+              <span class="nav-icon">
+                <i class="bi bi-truck"></i>
+              </span>
+              <span class="nav-text">Dispatched</span>
+            </a>
+
+            <a class="nav-link  dispatch-child" href="{{ route('material-dispatch.index') }}#receivedSection">
+              <span class="nav-icon">
+                <i class="bi bi-box-seam"></i>
+              </span>
+              <span class="nav-text">Received</span>
+            </a>
+
+            <a class="nav-link  dispatch-child" href="{{ route('material-dispatch.index') }}#discrepancySection">
+              <span class="nav-icon">
+                <i class="bi bi-exclamation-triangle"></i>
+              </span>
+              <span class="nav-text">Discrepancy</span>
+            </a>
+
+            <a class="nav-link  dispatch-child" href="{{ route('material-dispatch.index') }}#rejectedSection">
+              <span class="nav-icon">
+                <i class="bi bi-x-circle"></i>
+              </span>
+              <span class="nav-text">Rejected</span>
+            </a>
+
+          </div>
+
+        </div>
+
+        <a class="nav-link {{ request()->routeIs('consumptions.*') ? 'active' : '' }}" href="{{ url('consumptions') }}">
           <span class="nav-icon"><i class="bi bi-basket" aria-hidden="true"></i></span>
           <span class="nav-text">Material Consumption</span>
         </a>
 
-        <a class="nav-link" href="{{ url('wastages') }}">
+        <a class="nav-link {{ request()->routeIs('wastages.*') ? 'active' : '' }}" href="{{ url('wastages') }}">
           <span class="nav-icon"><i class="bi bi-trash3" aria-hidden="true"></i></span>
           <span class="nav-text">Wastage</span>
         </a>
@@ -95,17 +166,18 @@
         <!-- Reports Heading -->
         <div class="sidebar-heading">REPORTS</div>
 
-        <a class="nav-link" href="{{ url('current-stock') }}">
+        <a class="nav-link {{ request()->routeIs('current-stock.*') ? 'active' : '' }}"
+          href="{{ url('current-stock') }}">
           <span class="nav-icon"><i class="bi bi-boxes" aria-hidden="true"></i></span>
           <span class="nav-text">Current Stock</span>
         </a>
 
-        <a class="nav-link" href="{{ url('stock-ledger') }}">
+        <a class="nav-link {{ request()->routeIs('stock-ledger.*') ? 'active' : '' }}" href="{{ url('stock-ledger') }}">
           <span class="nav-icon"><i class="bi bi-journal-text" aria-hidden="true"></i></span>
           <span class="nav-text">Stock Ledger</span>
         </a>
 
-        <a class="nav-link" href="{{ url('stock-report') }}">
+        <a class="nav-link {{ request()->routeIs('stock-report.*') ? 'active' : '' }}" href="{{ url('stock-report') }}">
           <span class="nav-icon"><i class="bi bi-file-earmark-bar-graph" aria-hidden="true"></i></span>
           <span class="nav-text">Stock Report</span>
         </a>
@@ -113,7 +185,7 @@
         <!-- Settings Heading -->
         <div class="sidebar-heading">SETTINGS</div>
 
-        <a class="nav-link" href="{{ url('users') }}">
+        <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ url('users') }}">
           <span class="nav-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
           <span class="nav-text">Users</span>
         </a>
@@ -220,4 +292,30 @@
         </div>
       </nav>
 
+      <script>
 
+        document.addEventListener('DOMContentLoaded', function () {
+
+          const sidebarToggle = document.querySelector('.sidebar-toggle');
+          const menu = document.getElementById('materialDispatchMenu');
+
+          sidebarToggle.addEventListener('click', function () {
+
+            setTimeout(() => {
+
+              if (document.body.classList.contains('sidebar-mini')) {
+
+                bootstrap.Collapse.getOrCreateInstance(menu).hide();
+
+              } else {
+
+                bootstrap.Collapse.getOrCreateInstance(menu).show();
+
+              }
+
+            }, 200);
+
+          });
+
+        });
+      </script>

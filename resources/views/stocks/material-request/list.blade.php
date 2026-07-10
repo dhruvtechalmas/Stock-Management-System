@@ -12,12 +12,13 @@
             @endforeach
     </div>
 
+    
     {{-- Add Purchase Modal --}}
     <div class="modal fade" id="materialRequestModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Purchase</h5>
+                    <h5 class="modal-title">Add Material Request</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -26,6 +27,7 @@
             </div>
         </div>
     </div>
+  
 
     <main class="dashboard-content">
         <div class="container-fluid px-3 px-lg-4 py-4">
@@ -39,9 +41,11 @@
                     </div>
                 </div>
 
+                @hasrole('Kitchen Staff')
                 <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#materialRequestModal">
                     <i class="bi bi-plus-circle"></i> Add Material Request
                 </button>
+                  @endhasrole
             </div>
 
             <section class="panel">
@@ -149,52 +153,90 @@
 
 
         
-         {{-- In show only model form error --}}
-        @if(session('edit_material_request_id'))
+            {{-- Open Create Modal --}}
+            @if($errors->create->any())
 
             <script>
-                document.addEventListener('DOMContentLoaded', function () {
 
-                    const modal = new bootstrap.Modal(
-                        document.getElementById(
-                            'editMaterialRequestModal{{ session("edit_material_request_id") }}'
-                        )
-                    );
+            document.addEventListener('DOMContentLoaded',function(){
 
-                    modal.show();
+                new bootstrap.Modal(
+                    document.getElementById('materialRequestModal')
+                ).show();
 
-                });
+            });
+
             </script>
 
-        @elseif($errors->any())
+            @endif
+
+
+            {{-- Open Edit Modal --}}
+            @if(session()->has('edit_material_request_id') && $errors->edit->any())
 
             <script>
-                document.addEventListener('DOMContentLoaded', function () {
 
-                    const modal = new bootstrap.Modal(
-                        document.getElementById('materialRequestModal')
-                    );
+            document.addEventListener('DOMContentLoaded',function(){
 
-                    modal.show();
+                new bootstrap.Modal(
 
-                });
+                    document.getElementById(
+                        'editMaterialRequestModal{{ session("edit_material_request_id") }}'
+                    )
+
+                ).show();
+
+            });
+
             </script>
 
-        @endif
+            @endif
 
         
-        @if ($errors->any())
             <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    const modal = new bootstrap.Modal(document.getElementById('materialRequestModal'));
-                    modal.show();
 
-                    document.getElementById('cancelMaterialRequestBtn').addEventListener('click',function(){
-                    location.href="{{ route('material-requests.index') }}";
-                   });
+document.addEventListener('DOMContentLoaded',function(){
+
+    document.querySelectorAll('.modal').forEach(function(modal){
+
+        modal.addEventListener('hidden.bs.modal',function(){
+
+            if(
+                window.location.search ||
+                document.querySelector('.invalid-feedback')
+            ){
+                window.location.href="{{ route('material-requests.index') }}";
+            }
+
+        });
+
+    });
+
+});
+
+</script>
+{{-- 
+        @if ($errors->any())
+
+
+        <script>
+
+            document.addEventListener('DOMContentLoaded', function () {
+
+                document.querySelectorAll('[id^="cancelMaterialRequestBtn"]').forEach(function(btn){
+
+                    btn.addEventListener('click', function(){
+
+                        window.location.href = "{{ route('material-requests.index') }}";
+
+                    });
+
                 });
+
+            });
+
             </script>
-        @endif
+        @endif --}}
 
         
 @endsection

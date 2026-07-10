@@ -27,15 +27,19 @@
 
                                 <input type="text"
                                     name="request_date"
-                                    class="form-control @error('request_date') is-invalid @enderror"
+                                    class="form-control {{ $errors->edit->has('request_date') ? 'is-invalid' : '' }}"
                                     placeholder="dd/mm/yyyy"
                                     value="{{ old('request_date', \Carbon\Carbon::parse($materialRequest->request_date)->format('d M Y')) }}">
 
-                                @error('request_date')
+                                @if($errors->edit->has('request_date'))
+
                                     <div class="invalid-feedback d-block">
-                                        {{ $message }}
+
+                                        {{ $errors->edit->first('request_date') }}
+
                                     </div>
-                                @enderror
+
+                                @endif
                             </div>
 
                             <input type="hidden" name="status" value="{{ $materialRequest->status }}">
@@ -61,7 +65,7 @@
                                         <td>
                                             <select
                                                 name="items[{{ $index }}][material_id]"
-                                                class="form-select material-select searchable-material">
+                                                class="form-select material-select searchable-material {{ $errors->edit->has("items.$index.material_id") ? 'is-invalid' : '' }}">
 
                                                 <option value="">Select Material</option>
 
@@ -80,30 +84,38 @@
 
                                             </select>
 
-                                            @error("items.$index.material_id")
+                                            @if($errors->edit->has("items.$index.material_id"))
                                                 <div class="invalid-feedback d-block">
-                                                    {{ $message }}
+                                                    {{ $errors->edit->first("items.$index.material_id") }}
                                                 </div>
-                                            @enderror
+                                            @endif
                                         </td>
-                                        <td><input type="text" class="form-control unit" readonly></td>
+
+                                        <td>
+                                            <input
+                                                type="text"
+                                                class="form-control unit"
+                                                readonly>
+                                        </td>
+
                                         <td>
 
                                             <input
                                                 type="number"
                                                 name="items[{{ $index }}][requested_qty]"
-                                                class="form-control quantity @error("items.$index.requested_qty") is-invalid @enderror"
+                                                class="form-control quantity {{ $errors->edit->has("items.$index.requested_qty") ? 'is-invalid' : '' }}"
                                                 min="0.001"
                                                 step="0.001"
                                                 value="{{ old("items.$index.requested_qty", number_format($item->requested_qty,2,'.','')) }}">
 
-                                            @error("items.$index.requested_qty")
+                                            @if($errors->edit->has("items.$index.requested_qty"))
                                                 <div class="invalid-feedback d-block">
-                                                    {{ $message }}
+                                                    {{ $errors->edit->first("items.$index.requested_qty") }}
                                                 </div>
-                                            @enderror
+                                            @endif
 
                                         </td>
+
                                         <td>
                                             <button type="button" class="btn btn-outline-danger remove-row">
                                                 <i class="bi bi-trash"></i>
@@ -139,7 +151,7 @@
 
                         <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
                             {{-- id must be unique per modal, unlike the original --}}
-                            <button type="button" id="cancelmaterialRequestBtn{{ $materialRequest->id }}" class="btn btn-outline-secondary"
+                            <button type="button" id="cancel-edit-modalbtn{{ $materialRequest->id }}" class="btn btn-outline-secondary"
                                 data-bs-dismiss="modal">
                                 Cancel
                             </button>

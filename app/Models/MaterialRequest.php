@@ -12,9 +12,12 @@ class MaterialRequest extends Model
     protected $fillable = [
         'request_no',
         'requested_by',
+        'approved_by',
         'request_date',
         'status',
         'remarks',
+        'approved_at',
+        'reject_reason',
     ];
 
     protected $casts = [

@@ -26,13 +26,17 @@
                     name="request_date"
                     class="form-control @error('request_date') is-invalid @enderror"
                     value="{{ old('request_date') }}"
-                    placeholder="dd/mm/yyyy">
+                    placeholder="dd/mm/yyyy">{{ $errors->create->has('request_date') ? 'is-invalid' : '' }}
 
-                @error('request_date')
+                    @if($errors->create->has('request_date'))
+
                     <div class="invalid-feedback d-block">
-                        {{ $message }}
+
+                    {{ $errors->create->first('request_date') }}
+
                     </div>
-                @enderror
+
+                    @endif
             </div>
 
         </div>
@@ -57,53 +61,54 @@
 
                     @foreach($oldItems as $index => $item)
                     <tr>
-                        <td>
+                       <td>
                             <select
                                 name="items[{{ $index }}][material_id]"
-                                class="form-select material-select searchable-material 
-                                @error("items.$index.material_id") is-invalid @enderror">
+                                class="form-select material-select searchable-material
+                                {{ $errors->create->has("items.$index.material_id") ? 'is-invalid' : '' }}">
 
                                 <option value="">Select Material</option>
 
                                 @foreach($materials as $material)
-
                                     <option
                                         value="{{ $material->id }}"
                                         data-unit="{{ $material->unit }}"
                                         {{ old("items.$index.material_id", $item['material_id'] ?? '') == $material->id ? 'selected' : '' }}>
-
                                         {{ $material->material_name }}
                                     </option>
-
                                 @endforeach
+
                             </select>
 
-                             @error("items.$index.material_id")
-                                    <div class="invalid-feedback d-block">
-                                    {{ $message }}
-                                    </div>
-                                @enderror
+                            @if($errors->create->has("items.$index.material_id"))
+                                <div class="invalid-feedback d-block">
+                                    {{ $errors->create->first("items.$index.material_id") }}
+                                </div>
+                            @endif
                         </td>
+
                         <td>
-                           <input type="text"
+                            <input type="text"
                                 class="form-control unit"
                                 readonly>
                         </td>
+
                         <td>
-                          <input
+                            <input
                                 type="number"
                                 name="items[{{ $index }}][requested_qty]"
-                                class="form-control quantity @error("items.$index.requested_qty") is-invalid @enderror""
+                                class="form-control quantity {{ $errors->create->has("items.$index.requested_qty") ? 'is-invalid' : '' }}"
                                 min="0.001"
                                 step="0.001"
                                 value="{{ old("items.$index.requested_qty", $item['requested_qty'] ?? '') }}">
 
-                                @error("items.$index.requested_qty")
-                                    <div class="invalid-feedback d-block">
-                                    {{ $message }}
-                                    </div>
-                                @enderror
+                            @if($errors->create->has("items.$index.requested_qty"))
+                                <div class="invalid-feedback d-block">
+                                    {{ $errors->create->first("items.$index.requested_qty") }}
+                                </div>
+                            @endif
                         </td>
+
                         <td>
                             <button
                                 type="button"

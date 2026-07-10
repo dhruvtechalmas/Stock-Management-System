@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardConroller;
 use App\Http\Controllers\MaterialCategoryController;
 use App\Http\Controllers\MaterialController;
+use App\Http\Controllers\MaterialDispatchController;
 use App\Http\Controllers\MaterialRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
@@ -70,7 +71,25 @@ Route::middleware('auth')->group(function () {
     Route::patch('material-requests/{material_request}/approve', [MaterialRequestController::class, 'approve'])->name('material-requests.approve');
     Route::patch('material-requests/{material_request}/reject', [MaterialRequestController::class, 'reject'])->name('material-requests.reject');
 
+    });
 
-});
+    Route::prefix('material-dispatch')->name('material-dispatch.')->group(function () {
+        // Main Page
+        Route::get('/', [MaterialDispatchController::class, 'index'])->name('index');
+        // Pending -> Approve
+        Route::post('/approve', [MaterialDispatchController::class, 'approve'])->name('approve');
+        // Pending -> Reject
+        Route::post('/reject', [MaterialDispatchController::class, 'reject'])->name('reject');
+        // Approved/Partial -> Dispatch
+        Route::post('/dispatch', [MaterialDispatchController::class, 'dispatch'])->name('dispatch');
+        // Dispatched -> Receive
+        Route::post('/receive', [MaterialDispatchController::class, 'receive'])->name('receive');
+        // Discrepancy -> Resolve
+        Route::post('/resolve', [MaterialDispatchController::class, 'resolve'])->name('resolve');
+
+    });
+
+
+
 
 require __DIR__ . '/auth.php';

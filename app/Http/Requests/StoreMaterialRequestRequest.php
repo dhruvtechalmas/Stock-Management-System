@@ -4,7 +4,8 @@ namespace App\Http\Requests;
 
 use App\Models\Material;
 use Illuminate\Foundation\Http\FormRequest;
-
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 class StoreMaterialRequestRequest extends FormRequest
 {
     /**
@@ -73,6 +74,17 @@ class StoreMaterialRequestRequest extends FormRequest
         });
     }
 
+    protected function failedValidation(Validator $validator)
+{
+    throw new HttpResponseException(
+
+        redirect()
+            ->back()
+            ->withInput()
+            ->withErrors($validator, 'create')
+
+    );
+}
     /**
      * Custom Messages
      */
