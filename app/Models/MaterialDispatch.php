@@ -19,6 +19,12 @@ class MaterialDispatch extends Model
         'status',
     ];
 
+    protected $casts = [
+        'dispatched_at' => 'datetime',
+        'received_at' => 'datetime',
+        'resolved_at' => 'datetime',
+    ];
+
     public function request()
     {
         return $this->belongsTo(MaterialRequest::class, 'material_request_id');

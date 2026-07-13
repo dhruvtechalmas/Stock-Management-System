@@ -20,11 +20,11 @@ class RejectMaterialDispatchRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-     public function rules(): array
+    public function rules(): array
     {
         return [
             'material_request_id' => ['required', 'exists:material_requests,id'],
-            'reason' => ['required', 'string', 'max:500'],
+            'reject_reason' => ['required', 'string', 'max:500'],
         ];
     }
 }

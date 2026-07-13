@@ -22,7 +22,15 @@ return new class extends Migration
 
             $table->timestamp('dispatched_at')->nullable();
 
-            $table->enum('status', ['pending','dispatched','received','received_with_discrepancy','completed'])->default('pending');
+            $table->enum('status', [
+                'pending',
+                'partially_dispatched',
+                'dispatched',
+                'received',
+                'received_with_discrepancy',
+                'completed',
+                'rejected',
+            ])->default('pending');
 
             $table->timestamps();
         });

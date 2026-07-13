@@ -205,58 +205,44 @@
 
             const row = document.createElement('tr');
             row.innerHTML = `
-                <tr>
-
                 <td>
+                    <select
+                        name="items[${rowCount}][material_id]"
+                        class="form-select material-select searchable-material">
 
-                <select
-                name="items[${rowCount}][material_id]"
-                class="form-select material-select searchable-material">
-
-                <option value="">Select Material</option>
-
-                ${materialOptionsHtml}
-
-                </select>
-
+                        <option value="">Select Material</option>
+                        ${materialOptionsHtml}
+                    </select>
                 </td>
 
                 <td>
-
-                <input
-                type="text"
-                class="form-control unit"
-                readonly>
-
+                    <input type="text" class="form-control unit" readonly>
                 </td>
 
                 <td>
-
-                <input
-                type="number"
-                name="items[${rowCount}][requested_qty]"
-                class="form-control quantity"
-                min="0.001"
-                step="0.001">
-
+                    <input
+                        type="number"
+                        name="items[${rowCount}][requested_qty]"
+                        class="form-control quantity"
+                        min="0.001"
+                        step="0.001">
                 </td>
 
                 <td>
-
-                <button
-                type="button"
-                class="btn btn-outline-danger remove-row">
-
-                <i class="bi bi-trash"></i>
-
-                </button>
-
+                    <button type="button" class="btn btn-outline-danger remove-row">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </td>
+            `;
 
-                </tr>
-                `;
             tbody.appendChild(row);
+
+            $(row).find('.searchable-material').select2({
+                placeholder: 'Search Material',
+                width: '100%'
+            });
         }
+        
     });
 
     </script>
@@ -283,24 +269,7 @@
         });
     });
 
-   
 
-$(document).ready(function () {
-
-   tbody.appendChild(row);
-
-$(row).find('.searchable-material').select2({
-    placeholder:"Search Material",
-    width:"100%"
-});
-
-});
-
-
-$(row).find('.searchable-material').select2({
-    placeholder: "Search Material",
-    width: '100%'
-});
 
 </script>
 

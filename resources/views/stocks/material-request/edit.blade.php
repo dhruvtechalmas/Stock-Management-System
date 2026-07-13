@@ -131,7 +131,7 @@
                             data-target-body="materialRequestItemsBody{{ $materialRequest->id }}">
                             <i class="bi bi-plus-circle"></i> Add Item
                         </button>
-                        <div class="mt-3">
+                        <div class="mt-3">c
 
                             <label class="form-label">Remarks</label>
 

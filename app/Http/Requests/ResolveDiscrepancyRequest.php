@@ -23,11 +23,13 @@ class ResolveDiscrepancyRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'material_dispatch_id' => ['required', 'exists:material_dispatches,id',],
 
-            'material_dispatch_id' => ['required','exists:material_dispatches,id'],
+            'items' => ['required', 'array', 'min:1',],
 
-            'resolution' => ['required','in:dispatch_remaining,cancel_missing']
+            'items.*.id' => ['required', 'exists:material_dispatch_items,id',],
 
+            'items.*.missing_qty' => ['required','numeric','min:0',],
         ];
     }
 }

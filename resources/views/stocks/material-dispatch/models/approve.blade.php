@@ -1,146 +1,213 @@
-<div class="modal fade"
-     id="approveModal"
-     tabindex="-1">
+{{-- ========================================================= --}}
+{{-- APPROVE & DISPATCH MODALS --}}
+{{-- ========================================================= --}}
 
-    <div class="modal-dialog">
+@foreach($pendingRequests as $request)
 
-        <form action="{{ route('material-dispatch.approve') }}"
-              method="POST">
+    <div class="modal fade"
+         id="approveModal{{ $request->id }}"
+         tabindex="-1"
+         aria-hidden="true">
 
-            @csrf
-
-            <input type="hidden"
-                   name="material_request_id"
-                   id="approve_request_id">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
 
             <div class="modal-content">
 
-                <div class="modal-header">
+                <form action="{{ route('material-dispatch.approve') }}"
+                      method="POST">
 
-                    <h5>
+                    @csrf
 
-                        Approve Material Request
+                    <input type="hidden"
+                           name="material_request_id"
+                           value="{{ $request->id }}">
 
-                    </h5>
+                    <div class="modal-header">
 
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"></button>
+                        <h5 class="modal-title">
+                            Approve & Dispatch - {{ $request->request_no }}
+                        </h5>
 
-                </div>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal">
+                        </button>
 
-                <div class="modal-body">
+                    </div>
 
-                    Are you sure you want to approve this request?
+                    <div class="modal-body">
 
-                </div>
+                        <div class="table-responsive">
 
-                <div class="modal-footer">
+                            <table class="table table-bordered align-middle">
 
-                    <button class="btn btn-secondary"
-                            data-bs-dismiss="modal"
-                            type="button">
+                                <thead>
+                                    <tr>
+                                        <th>Material</th>
+                                        <th>Requested Qty</th>
+                                        <th>Current Stock</th>
+                                        <th>Dispatch Qty</th>
+                                    </tr>
+                                </thead>
 
-                        Cancel
+                                <tbody>
 
-                    </button>
+                                    @foreach($request->items as $item)
 
-                    <button class="btn btn-success">
+                                        @php
+                                            $requestedQty = (float) $item->requested_qty;
+                                            $currentStock = (float) ($item->material?->current_stock ?? 0);
+                                            $maxDispatch = min($requestedQty, $currentStock);
+                                        @endphp
 
-                        Approve
+                                        <tr>
 
-                    </button>
+                                            <td>
+                                                {{ $item->material?->material_name ?? '-' }}
+                                            </td>
 
-                </div>
+                                            <td>
+                                                {{ number_format($requestedQty, 2) }}
+                                            </td>
+
+                                            <td>
+                                                {{ number_format($currentStock, 2) }}
+                                            </td>
+
+                                            <td>
+
+                                                <input type="hidden"
+                                                       name="items[{{ $loop->index }}][request_item_id]"
+                                                       value="{{ $item->id }}">
+
+                                                <input type="number"
+                                                       name="items[{{ $loop->index }}][dispatch_qty]"
+                                                       class="form-control"
+                                                       min="0"
+                                                       max="{{ $maxDispatch }}"
+                                                       step="0.01"
+                                                       value="{{ $maxDispatch }}"
+                                                       required>
+
+                                            </td>
+
+                                        </tr>
+
+                                    @endforeach
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-success">
+
+                            <i class="bi bi-check-circle"></i>
+                            Approve & Dispatch
+
+                        </button>
+
+                    </div>
+
+                </form>
 
             </div>
 
-        </form>
+        </div>
 
     </div>
 
-</div>
+@endforeach
 
-<div class="modal fade"
-     id="rejectModal">
 
-    <div class="modal-dialog">
+{{-- ========================================================= --}}
+{{-- REJECT MODALS --}}
+{{-- ========================================================= --}}
 
-        <form action="{{ route('material-dispatch.reject') }}"
-              method="POST">
+@foreach($pendingRequests as $request)
 
-            @csrf
+    <div class="modal fade"
+         id="rejectModal{{ $request->id }}"
+         tabindex="-1"
+         aria-hidden="true">
 
-            <input type="hidden"
-                   name="material_request_id"
-                   id="reject_request_id">
+        <div class="modal-dialog modal-dialog-centered">
 
             <div class="modal-content">
 
-                <div class="modal-header">
+                <form action="{{ route('material-dispatch.reject') }}"
+                      method="POST">
 
-                    <h5>
+                    @csrf
 
-                        Reject Request
+                    <input type="hidden"
+                           name="material_request_id"
+                           value="{{ $request->id }}">
 
-                    </h5>
+                    <div class="modal-header">
 
-                </div>
+                        <h5 class="modal-title">
+                            Reject Request - {{ $request->request_no }}
+                        </h5>
 
-                <div class="modal-body">
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal">
+                        </button>
 
-                    <label>
+                    </div>
 
-                        Reject Reason
+                    <div class="modal-body">
 
-                    </label>
+                        <label class="form-label">
+                            Reject Reason
+                        </label>
 
-                    <textarea class="form-control"
-                              name="reject_reason"
-                              rows="4"></textarea>
+                        <textarea name="reject_reason"
+                                  class="form-control"
+                                  rows="4"
+                                  maxlength="500"
+                                  placeholder="Enter reject reason"
+                                  required></textarea>
 
-                </div>
+                    </div>
 
-                <div class="modal-footer">
+                    <div class="modal-footer">
 
-                    <button class="btn btn-secondary"
-                            type="button"
-                            data-bs-dismiss="modal">
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Cancel
+                        </button>
 
-                        Cancel
+                        <button type="submit"
+                                class="btn btn-danger">
 
-                    </button>
+                            <i class="bi bi-x-circle"></i>
+                            Reject
 
-                    <button class="btn btn-danger">
+                        </button>
 
-                        Reject
+                    </div>
 
-                    </button>
-
-                </div>
+                </form>
 
             </div>
 
-        </form>
+        </div>
 
     </div>
 
-</div>
-
-<script>
-    $(function () {
-
-    $('.approveBtn').click(function () {
-
-        $('#approve_request_id').val($(this).data('id'));
-
-    });
-
-    $('.rejectBtn').click(function () {
-
-        $('#reject_request_id').val($(this).data('id'));
-
-    });
-
-});
-</script>
+@endforeach

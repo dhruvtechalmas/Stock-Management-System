@@ -17,12 +17,12 @@ class MaterialDispatchItem extends Model
 
     public function dispatch()
     {
-        return $this->belongsTo(MaterialDispatch::class);
+        return $this->belongsTo(MaterialDispatch::class, 'material_dispatch_id');
     }
 
     public function requestItem()
     {
-        return $this->belongsTo(MaterialRequestItem::class);
+        return $this->belongsTo(MaterialRequestItem::class, 'material_request_item_id');
     }
 
     public function material()

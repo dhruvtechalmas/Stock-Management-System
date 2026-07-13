@@ -22,20 +22,18 @@ class ReceiveMaterialRequest extends FormRequest
      */
 
     public function rules(): array
-    {
-        return [
+{
+    return [
+        'material_dispatch_id' => ['required','exists:material_dispatches,id',],
 
-            'material_dispatch_id' => ['required','exists:material_dispatches,id'],
+        'items' => ['required','array','min:1',],
 
-            'items' => ['required','array'],
+        'items.*.id' => ['required','exists:material_dispatch_items,id',],
 
-            'items.*.id' => ['required','exists:material_dispatch_items,id'],
+        'items.*.received_qty' => ['required','numeric','min:0',],
 
-            'items.*.received_qty' => ['required','numeric','min:0'],
-
-            'remarks' => ['nullable','string','max:500']
-
-        ];
-    }
+        'remarks' => ['nullable','string','max:500',],
+    ];
+}
 
 }

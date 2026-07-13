@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
 {
@@ -13,9 +14,9 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $permissions = [    
+        $permissions = [
 
             // Dashboard
             'dashboard.view',
@@ -60,6 +61,7 @@ class RolePermissionSeeder extends Seeder
             'material-dispatch.create',
             'material-dispatch.view',
             'material-dispatch.edit',
+            'material-dispatch.resolve',
             'material-dispatch.delete',
 
             // Material Consumption
@@ -119,6 +121,11 @@ class RolePermissionSeeder extends Seeder
             'material-request.view',
             'material-request.edit',
             'material-request.delete',
+
+            // Material Dispatch
+            'material-dispatch.index',
+            'material-dispatch.view',
+            'material-dispatch.resolve',
 
             // Material Consumption
             'material-consumption.index',

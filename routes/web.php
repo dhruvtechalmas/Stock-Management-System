@@ -71,8 +71,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('material-requests/{material_request}/approve', [MaterialRequestController::class, 'approve'])->name('material-requests.approve');
     Route::patch('material-requests/{material_request}/reject', [MaterialRequestController::class, 'reject'])->name('material-requests.reject');
 
-    });
-
     Route::prefix('material-dispatch')->name('material-dispatch.')->group(function () {
         // Main Page
         Route::get('/', [MaterialDispatchController::class, 'index'])->name('index');
@@ -88,8 +86,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/resolve', [MaterialDispatchController::class, 'resolve'])->name('resolve');
 
     });
+    
+});
 
-
-
-
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

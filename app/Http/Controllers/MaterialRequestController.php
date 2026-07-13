@@ -60,34 +60,38 @@ class MaterialRequestController extends Controller implements HasMiddleware
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMaterialRequestRequest $request)
-    {
-        DB::transaction(function () use ($request) {
+   public function store(StoreMaterialRequestRequest $request)
+{
+    DB::transaction(function () use ($request) {
 
-            $materialRequest = MaterialRequest::create([
-                'request_no' => 'MR-' . str_pad((MaterialRequest::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT),
-                'requested_by' => Auth::id(),
-                'request_date' => $request->request_date,
-                'status' => 'pending',
-                'remarks' => $request->remarks,
+        $materialRequest = MaterialRequest::create([
+            'request_no' => 'MR-' . str_pad(
+                (MaterialRequest::max('id') ?? 0) + 1,
+                6,
+                '0',
+                STR_PAD_LEFT
+            ),
+            'requested_by' => Auth::id(),
+            'request_date' => $request->request_date,
+            'status' => 'pending',
+            'remarks' => $request->remarks,
+        ]);
+
+        foreach ($request->items as $item) {
+            $materialRequest->items()->create([
+                'material_id' => $item['material_id'],
+                'requested_qty' => $item['requested_qty'],
             ]);
+        }
+    });
 
-            foreach ($request->items as $item) {
-
-                $materialRequest->items()->create([
-                    'material_id' => $item['material_id'],
-                    'requested_qty' => $item['requested_qty'],
-                ]);
-
-            }
-
-        });
-
-        return redirect()->route('material-requests.index')->with([
+    return redirect()
+        ->route('material-requests.index')
+        ->with([
             'message' => 'Material Request created successfully.',
             'alert-type' => 'success',
         ]);
-    }
+}
 
 
     /**

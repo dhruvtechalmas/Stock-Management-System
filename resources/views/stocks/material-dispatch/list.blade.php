@@ -67,7 +67,7 @@
             {{-- pendingRequests Table --}}
             <section id="pendingSection" class="mb-5">
 
-                <div class="card shadow-sm border-0 rounded-4">
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
 
                     <div class="card-body">
 
@@ -89,114 +89,88 @@
                         <!-- Table -->
                         <div class="table-responsive">
 
-                            <table class="table align-middle">
+                            <table class="table align-middle" style="table-layout: fixed; width: 100%;">
+
+                                <colgroup>
+                                    <col style="width: 13%;">
+                                    <col style="width: 14%;">
+                                    <col style="width: 14%;">
+                                    <col style="width: 12%;">
+                                    <col style="width: 12%;">
+                                    <col style="width: 35%;">
+                                </colgroup>
 
                                 <thead>
-
                                     <tr>
-
                                         <th>Request No</th>
                                         <th>Requested By</th>
                                         <th>Request Date</th>
                                         <th>Total Items</th>
                                         <th>Status</th>
-                                        <th width="220">Action</th>
-
+                                        <th>Action</th>
                                     </tr>
-
                                 </thead>
 
                                 <tbody>
-
                                     @forelse($pendingRequests as $request)
-
                                         <tr>
+                                            <td>{{ $request->request_no }}</td>
+
+                                            <td>{{ $request->user->name }}</td>
+
+                                            <td>{{ $request->request_date->format('d M Y') }}</td>
+
+                                            <td>{{ $request->items->count() }}</td>
 
                                             <td>
-                                                {{ $request->request_no }}
-                                            </td>
-
-                                            <td>
-                                                {{ $request->user->name }}
-                                            </td>
-
-                                            <td>
-                                                {{ $request->request_date->format('d M Y') }}
-                                            </td>
-
-                                            <td>
-                                                {{ $request->items->count() }}
-                                            </td>
-
-                                            <td>
-
                                                 <span class="badge bg-warning">
-
                                                     Pending
-
                                                 </span>
-
                                             </td>
 
                                             <td>
+                                                <div class="d-flex align-items-center gap-2 flex-nowrap">
 
-                                                <!-- View -->
+                                                    <button type="button" class="btn btn-outline-primary btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#viewRequestModal{{ $request->id }}">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </button>
 
-                                                <button class="btn btn-outline-primary btn-sm viewBtn"
-                                                    data-id="{{ $request->id }}" data-bs-toggle="modal"
-                                                    data-bs-target="#viewModal">
+                                                    @can('material-dispatch.edit')
 
-                                                    <i class="bi bi-eye"></i>
+                                                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                                            data-bs-target="#approveModal{{ $request->id }}">
 
-                                                    View
+                                                            <i class="bi bi-check-circle"></i>
+                                                            Approve
 
-                                                </button>
+                                                        </button>
 
-                                                <!-- Approve -->
+                                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                                            data-bs-target="#rejectModal{{ $request->id }}">
 
-                                                <button class="btn btn-success btn-sm approveBtn" data-id="{{ $request->id }}"
-                                                    data-bs-toggle="modal" data-bs-target="#approveModal">
+                                                            <i class="bi bi-x-circle"></i>
+                                                            Reject
 
-                                                    <i class="bi bi-check-circle"></i>
+                                                        </button>
 
-                                                    Approve
+                                                    @endcan
 
-                                                </button>
-
-                                                <!-- Reject -->
-
-                                                <button class="btn btn-danger btn-sm rejectBtn" data-id="{{ $request->id }}"
-                                                    data-bs-toggle="modal" data-bs-target="#rejectModal">
-
-                                                    <i class="bi bi-x-circle"></i>
-
-                                                    Reject
-
-                                                </button>
-
+                                                </div>
                                             </td>
-
                                         </tr>
-
                                     @empty
-
                                         <tr>
-
                                             <td colspan="6" class="text-center">
-
                                                 No Pending Requests Found
-
                                             </td>
-
                                         </tr>
-
                                     @endforelse
-
                                 </tbody>
-
                             </table>
-
                         </div>
+
 
                         <div class="mt-3">
 
@@ -206,13 +180,14 @@
                         </div>
 
                     </div>
-
                 </div>
+
+
 
             </section>
 
             {{-- approvedDispatches Table --}}
-            <div id="approvedSection">
+            <section id="approvedSection">
                 <div class="card shadow-sm border-0 rounded-4 mb-4">
 
                     <div class="card-body">
@@ -224,9 +199,6 @@
                                 <h4 class="mb-0 fw-bold">
                                     Approved Requests
 
-                                    {{-- <span class="badge bg-warning-subtle text-warning ms-2">
-                                        {{ $approvedDispatches->count() }}
-                                    </span> --}}
                                 </h4>
 
                             </div>
@@ -267,13 +239,11 @@
 
                                         <tr>
 
-                                            <td>{{ $dispatch->dispatch_no }}</td>
+                                            <td>{{ $dispatch->request->request_no ?? '-' }}</td>
 
-                                            <td>{{ $dispatch->request->request_no }}</td>
+                                            <td>{{ $dispatch->request->user->name ?? '-' }}</td>
 
-                                            <td>{{ $dispatch->request->user->name }}</td>
-
-                                            <td>{{ optional($dispatch->dispatched_at)->format('d M Y') }}</td>
+                                            <td>{{ optional($dispatch->request?->request_date)->format('d M Y') ?? '-' }}</td>
 
                                             <td>{{ $dispatch->items->count() }}</td>
 
@@ -284,9 +254,22 @@
                                             </td>
 
                                             <td>
-                                                <button class="btn btn-success btn-sm">
-                                                    Dispatch
+
+                                                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                                                    data-bs-target="#viewDispatchModal{{ $dispatch->id }}">
+
+                                                    <i class="bi bi-eye"></i>
+
+                                                    View
+
                                                 </button>
+
+                                                @can('material-dispatch.edit')
+                                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                                        data-bs-target="#dispatchModal{{ $dispatch->id }}">
+                                                        Dispatch
+                                                    </button>
+                                                @endcan
                                             </td>
 
                                         </tr>
@@ -298,7 +281,7 @@
 
                                             <td colspan="6" class="text-center">
 
-                                                No Pending Requests Found
+                                                No Approved Requests Found
 
                                             </td>
 
@@ -321,10 +304,10 @@
                     </div>
 
                 </div>
-            </div>
+            </section>
 
             {{-- dispatched Table --}}
-            <div id="dispatchedSection">
+            <section id="dispatchedSection">
                 <div class="card shadow-sm border-0 rounded-4 mb-4">
 
                     <div class="card-body">
@@ -336,9 +319,6 @@
                                 <h4 class="mb-0 fw-bold">
                                     Dispatched Requests
 
-                                    {{-- <span class="badge bg-warning-subtle text-warning ms-2">
-                                        {{ $dispatched->count() }}
-                                    </span> --}}
                                 </h4>
 
                             </div>
@@ -375,23 +355,23 @@
 
                                 <tbody>
 
-                                    @forelse($dispatched as $request)
+                                    @forelse($dispatched as $dispatch)
 
                                         <tr>
 
-                                            <td>{{ $request->request_no }}</td>
+                                            <td>{{ $dispatch->request->request_no }}</td>
 
-                                            <td>{{ $request->user->name }}</td>
+                                            <td>{{ $dispatch->request->user->name }}</td>
 
-                                            <td>{{ $request->request_date->format('d M Y') }}</td>
+                                            <td>{{ $dispatch->request->request_date->format('d M Y') }}</td>
 
-                                            <td>{{ $request->items->count() }}</td>
+                                            <td>{{ $dispatch->items->count() }}</td>
 
                                             <td>
 
-                                                <span class="badge bg-warning">
+                                                <span class="badge bg-success">
 
-                                                    Pending
+                                                    Dispatched
 
                                                 </span>
 
@@ -399,7 +379,8 @@
 
                                             <td>
 
-                                                <button class="btn btn-outline-secondary btn-sm">
+                                                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                                                    data-bs-target="#viewDispatchModal{{ $dispatch->id }}">
 
                                                     <i class="bi bi-eye"></i>
 
@@ -407,13 +388,16 @@
 
                                                 </button>
 
-                                                <button class="btn btn-dark btn-sm reviewBtn" data-id="{{ $request->id }}">
+                                                @can('material-dispatch.edit')
+                                                    <button class="btn btn-dark btn-sm" data-bs-toggle="modal"
+                                                        data-bs-target="#receiveModal{{ $dispatch->id }}">
 
-                                                    <i class="bi bi-search"></i>
+                                                        <i class="bi bi-box-arrow-in-down"></i>
 
-                                                    Review
+                                                        Receive
 
-                                                </button>
+                                                    </button>
+                                                @endcan
 
                                             </td>
 
@@ -425,7 +409,7 @@
 
                                             <td colspan="6" class="text-center">
 
-                                                No Pending Requests Found
+                                                No Dispatched Requests Found
 
                                             </td>
 
@@ -448,35 +432,35 @@
                     </div>
 
                 </div>
-            </div>
+            </section>
 
 
-            {{-- partialDispatches Table --}}
-            <div id="partialSection">
+            {{-- Partial Dispatches Table --}}
+            <section id="partialSection">
+
                 <div class="card shadow-sm border-0 rounded-4 mb-4">
 
                     <div class="card-body">
 
+                        {{-- Header --}}
                         <div class="d-flex justify-content-between align-items-center mb-4">
 
-                            <div class="d-flex align-items-center">
+                            <h4 class="mb-0 fw-bold">
+                                Partial Dispatches Requests
 
-                                <h4 class="mb-0 fw-bold">
-                                    Partial Dispatches Requests
+                                <span class="badge bg-warning text-dark ms-2">
+                                    {{ $partialDispatches->count() }}
+                                </span>
+                            </h4>
 
-                                    {{-- <span class="badge bg-warning-subtle text-warning ms-2">
-                                        {{ $partialDispatches->count() }}
-                                    </span> --}}
-                                </h4>
-
-                            </div>
-
-                            <div style="width:300px;">
-                                <input type="text" class="form-control" placeholder="🔍 Filter by request...">
+                            <div style="width: 300px;">
+                                <input type="text" class="form-control" placeholder="Filter by request...">
                             </div>
 
                         </div>
 
+
+                        {{-- Table --}}
                         <div class="table-responsive">
 
                             <table class="table align-middle">
@@ -484,76 +468,121 @@
                                 <thead>
 
                                     <tr>
-
                                         <th>REQUEST #</th>
-
                                         <th>REQUESTED BY</th>
-
                                         <th>REQUEST DATE</th>
-
                                         <th>TOTAL ITEMS</th>
-
+                                        <th>REMAINING QTY</th>
                                         <th>STATUS</th>
-
                                         <th>ACTIONS</th>
-
                                     </tr>
 
                                 </thead>
 
                                 <tbody>
 
-                                    @forelse($partialDispatches as $request)
+                                    @forelse($partialDispatches as $dispatch)
+
+                                        @php
+                                            $totalRemaining = $dispatch->items->sum(function ($item) {
+
+                                                $requestedQty = (float) $item->requestItem->requested_qty;
+
+                                                $dispatchedQty = (float) $item->dispatched_qty;
+
+                                                return max(
+                                                    0,
+                                                    $requestedQty - $dispatchedQty
+                                                );
+                                            });
+                                        @endphp
+
 
                                         <tr>
 
-                                            <td>{{ $request->request_no }}</td>
+                                            {{-- Request No --}}
+                                            <td>
+                                                {{ $dispatch->request?->request_no ?? '-' }}
+                                            </td>
 
-                                            <td>{{ $request->user->name }}</td>
 
-                                            <td>{{ $request->request_date->format('d M Y') }}</td>
+                                            {{-- Requested By --}}
+                                            <td>
+                                                {{ $dispatch->request?->user?->name ?? '-' }}
+                                            </td>
 
-                                            <td>{{ $request->items->count() }}</td>
 
+                                            {{-- Request Date --}}
+                                            <td>
+                                                {{ $dispatch->request?->request_date?->format('d M Y') ?? '-' }}
+                                            </td>
+
+
+                                            {{-- Total Items --}}
+                                            <td>
+                                                {{ $dispatch->items->count() }}
+                                            </td>
+
+
+                                            {{-- Total Remaining Quantity --}}
                                             <td>
 
-                                                <span class="badge bg-warning">
-
-                                                    Pending
-
+                                                <span class="fw-bold text-danger">
+                                                    {{ $totalRemaining }}
                                                 </span>
 
                                             </td>
 
+
+                                            {{-- Status --}}
                                             <td>
 
-                                                <button class="btn btn-outline-secondary btn-sm">
+                                                <span class="badge bg-warning text-dark">
+                                                    Partial Dispatch
+                                                </span>
+
+                                            </td>
+
+
+                                            {{-- Actions --}}
+                                            <td>
+
+                                                {{-- View --}}
+                                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#viewDispatchModal{{ $dispatch->id }}">
 
                                                     <i class="bi bi-eye"></i>
-
                                                     View
 
                                                 </button>
 
-                                                <button class="btn btn-dark btn-sm reviewBtn" data-id="{{ $request->id }}">
 
-                                                    <i class="bi bi-search"></i>
+                                                {{-- Dispatch Remaining --}}
+                                                @can('material-dispatch.edit')
 
-                                                    Review
+                                                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                                        data-bs-target="#dispatchModal{{ $dispatch->id }}">
 
-                                                </button>
+                                                        <i class="bi bi-truck"></i>
+                                                        Dispatch Remaining
+
+                                                    </button>
+
+                                                @endcan
 
                                             </td>
 
                                         </tr>
 
+
                                     @empty
 
                                         <tr>
 
-                                            <td colspan="6" class="text-center">
+                                            <td colspan="7" class="text-center py-4">
 
-                                                No partialDispatches Requests Found
+                                                No Partial Dispatch Requests Found
 
                                             </td>
 
@@ -567,20 +596,26 @@
 
                         </div>
 
-                        <div class="d-flex justify-content-between mt-3">
 
-                            <span>Total : {{ $partialDispatches->count() }}</span>
+                        {{-- Footer --}}
+                        <div class="mt-3">
+
+                            Total:
+                            <strong>
+                                {{ $partialDispatches->count() }}
+                            </strong>
 
                         </div>
 
                     </div>
 
                 </div>
-            </div>
+
+            </section>
 
 
             {{-- received Table --}}
-            <div id="receivedSection">
+            <section id="receivedSection">
                 <div class="card shadow-sm border-0 rounded-4 mb-4">
 
                     <div class="card-body">
@@ -592,9 +627,6 @@
                                 <h4 class="mb-0 fw-bold">
                                     Received Requests
 
-                                    {{-- <span class="badge bg-warning-subtle text-warning ms-2">
-                                        {{ $received->count() }}
-                                    </span> --}}
                                 </h4>
 
                             </div>
@@ -631,23 +663,23 @@
 
                                 <tbody>
 
-                                    @forelse($received as $request)
+                                    @forelse($received as $dispatch)
 
                                         <tr>
 
-                                            <td>{{ $request->request_no }}</td>
+                                            <td>{{ $dispatch->request->request_no }}</td>
 
-                                            <td>{{ $request->user->name }}</td>
+                                            <td>{{ $dispatch->request->user->name }}</td>
 
-                                            <td>{{ $request->request_date->format('d M Y') }}</td>
+                                            <td>{{ $dispatch->request->request_date->format('d M Y') }}</td>
 
-                                            <td>{{ $request->items->count() }}</td>
+                                            <td>{{ $dispatch->items->count() }}</td>
 
                                             <td>
 
-                                                <span class="badge bg-warning">
+                                                <span class="badge bg-success">
 
-                                                    Pending
+                                                    Completed
 
                                                 </span>
 
@@ -655,7 +687,8 @@
 
                                             <td>
 
-                                                <button class="btn btn-outline-secondary btn-sm">
+                                                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                                                    data-bs-target="#viewDispatchModal{{ $dispatch->id }}">
 
                                                     <i class="bi bi-eye"></i>
 
@@ -663,11 +696,11 @@
 
                                                 </button>
 
-                                                <button class="btn btn-dark btn-sm reviewBtn" data-id="{{ $request->id }}">
+                                                <button class="btn btn-dark btn-sm" disabled>
 
-                                                    <i class="bi bi-search"></i>
+                                                    <i class="bi bi-check-circle"></i>
 
-                                                    Review
+                                                    Completed
 
                                                 </button>
 
@@ -704,10 +737,10 @@
                     </div>
 
                 </div>
-            </div>
+            </section>
 
             {{-- Discrepancy Table --}}
-            <div id="discrepancySection">
+            <section id="discrepancySection">
                 <div class="card shadow-sm border-0 rounded-4 mb-4">
 
                     <div class="card-body">
@@ -719,9 +752,7 @@
                                 <h4 class="mb-0 fw-bold">
                                     Discrepancy Requests
 
-                                    {{-- <span class="badge bg-warning-subtle text-warning ms-2">
-                                        {{ $discrepancy->count() }}
-                                    </span> --}}
+
                                 </h4>
 
                             </div>
@@ -758,23 +789,23 @@
 
                                 <tbody>
 
-                                    @forelse($discrepancy as $request)
+                                    @forelse($discrepancy as $dispatch)
 
                                         <tr>
 
-                                            <td>{{ $request->request_no }}</td>
+                                            <td>{{ $dispatch->request->request_no }}</td>
 
-                                            <td>{{ $request->user->name }}</td>
+                                            <td>{{ $dispatch->request->user->name }}</td>
 
-                                            <td>{{ $request->request_date->format('d M Y') }}</td>
+                                            <td>{{ $dispatch->request->request_date->format('d M Y') }}</td>
 
-                                            <td>{{ $request->items->count() }}</td>
+                                            <td>{{ $dispatch->items->count() }}</td>
 
                                             <td>
 
                                                 <span class="badge bg-warning">
 
-                                                    Pending
+                                                    Discrepancy
 
                                                 </span>
 
@@ -782,7 +813,8 @@
 
                                             <td>
 
-                                                <button class="btn btn-outline-secondary btn-sm">
+                                                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                                                    data-bs-target="#viewDispatchModal{{ $dispatch->id }}">
 
                                                     <i class="bi bi-eye"></i>
 
@@ -790,13 +822,18 @@
 
                                                 </button>
 
-                                                <button class="btn btn-dark btn-sm reviewBtn" data-id="{{ $request->id }}">
+                                                @role('Kitchen Staff')
+                                                @can('material-dispatch.resolve')
+                                                    <button class="btn btn-dark btn-sm" data-bs-toggle="modal"
+                                                        data-bs-target="#resolveModal{{ $dispatch->id }}">
 
-                                                    <i class="bi bi-search"></i>
+                                                        <i class="bi bi-tools"></i>
 
-                                                    Review
+                                                        Resolve
 
-                                                </button>
+                                                    </button>
+                                                @endcan
+                                                @endrole
 
                                             </td>
 
@@ -831,10 +868,10 @@
                     </div>
 
                 </div>
-            </div>
+            </section>
 
             {{-- rejected Table --}}
-            <div id="rejectedSection">
+            <section id="rejectedSection">
                 <div class="card shadow-sm border-0 rounded-4 mb-4">
 
                     <div class="card-body">
@@ -846,9 +883,6 @@
                                 <h4 class="mb-0 fw-bold">
                                     Rejected Requests
 
-                                    {{-- <span class="badge bg-warning-subtle text-warning ms-2">
-                                        {{ $rejected->count() }}
-                                    </span> --}}
                                 </h4>
 
                             </div>
@@ -885,23 +919,23 @@
 
                                 <tbody>
 
-                                    @forelse($rejected as $request)
+                                    @forelse($rejected as $dispatch)
 
                                         <tr>
 
-                                            <td>{{ $request->request_no }}</td>
+                                            <td>{{ $dispatch->request?->request_no ?? '-' }}</td>
 
-                                            <td>{{ $request->user->name }}</td>
+                                            <td>{{ $dispatch->request?->user->name ?? '-' }}</td>
 
-                                            <td>{{ $request->request_date->format('d M Y') }}</td>
+                                            <td>{{ $dispatch->request?->request_date->format('d M Y') ?? '-' }}</td>
 
-                                            <td>{{ $request->items->count() }}</td>
+                                            <td>{{ $dispatch->items->count() }}</td>
 
                                             <td>
 
-                                                <span class="badge bg-warning">
+                                                <span class="badge bg-danger">
 
-                                                    Pending
+                                                    Rejected
 
                                                 </span>
 
@@ -909,19 +943,12 @@
 
                                             <td>
 
-                                                <button class="btn btn-outline-secondary btn-sm">
+                                                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                                                    data-bs-target="#viewDispatchModal{{ $dispatch->id }}">
 
                                                     <i class="bi bi-eye"></i>
 
                                                     View
-
-                                                </button>
-
-                                                <button class="btn btn-dark btn-sm reviewBtn" data-id="{{ $request->id }}">
-
-                                                    <i class="bi bi-search"></i>
-
-                                                    Review
 
                                                 </button>
 
@@ -958,9 +985,21 @@
                     </div>
 
                 </div>
-            </div>
+            </section>
 
-            <!-- Modals -->
+            @include('stocks.material-dispatch.models.view')
+
+            @can('material-dispatch.edit')
+                @include('stocks.material-dispatch.models.approve')
+                @include('stocks.material-dispatch.models.dispatch')
+                @include('stocks.material-dispatch.models.receive')
+            @endcan
+
+            @role('Kitchen Staff')
+            @can('material-dispatch.resolve')
+                @include('stocks.material-dispatch.models.resolve')
+            @endcan
+            @endrole
 
         </div>
 
