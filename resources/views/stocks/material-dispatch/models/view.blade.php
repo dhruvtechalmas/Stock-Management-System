@@ -209,7 +209,7 @@
 
 @foreach(
     $approvedDispatches
-        ->concat($partialDispatches)
+        ->concat($partialApprovedRequests)
         ->concat($dispatched)
         ->concat($received)
         ->concat($discrepancy)

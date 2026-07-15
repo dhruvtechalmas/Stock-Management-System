@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="adminHMD professional admin dashboard template">
-  <title>Dashboard | Stock Manage</title>
+  <title>Dashboard | Stock Management</title>
 
   <link rel="stylesheet" href="{{ url('/assets/css/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url('/assets/vendors/bootstrap-icons/bootstrap-icons.css') }}">
@@ -118,7 +118,7 @@
               <span class="nav-icon">
                 <i class="bi bi-arrow-left-right"></i>
               </span>
-              <span class="nav-text">Partially Dispatch</span>
+              <span class="nav-text">Partially Approved </span>
             </a>
 
             <a class="nav-link  dispatch-child" href="{{ route('material-dispatch.index') }}#dispatchedSection">
@@ -153,7 +153,7 @@
 
         </div>
 
-        <a class="nav-link {{ request()->routeIs('consumptions.*') ? 'active' : '' }}" href="{{ url('consumptions') }}">
+        <a class="nav-link {{ request()->routeIs('material-consumption.*') ? 'active' : '' }}" href="{{ url('material-consumption') }}">
           <span class="nav-icon"><i class="bi bi-basket" aria-hidden="true"></i></span>
           <span class="nav-text">Material Consumption</span>
         </a>

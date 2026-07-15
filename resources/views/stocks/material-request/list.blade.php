@@ -214,6 +214,19 @@ document.addEventListener('DOMContentLoaded',function(){
 
 });
 
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll('.btn-close').forEach(function (closeButton) {
+
+        closeButton.addEventListener('click', function () {
+            window.location.href = "{{ route('material-requests.index') }}";
+        });
+
+    });
+
+});
+
 </script>
 {{-- 
         @if ($errors->any())

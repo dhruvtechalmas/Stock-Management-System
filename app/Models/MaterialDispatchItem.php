@@ -29,4 +29,9 @@ class MaterialDispatchItem extends Model
     {
         return $this->belongsTo(Material::class);
     }
+
+    public function consumptions()
+    {
+        return $this->hasMany(MaterialConsumption::class, 'material_dispatch_item_id');
+    }
 }

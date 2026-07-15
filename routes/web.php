@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardConroller;
 use App\Http\Controllers\MaterialCategoryController;
+use App\Http\Controllers\MaterialConsumptionController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MaterialDispatchController;
 use App\Http\Controllers\MaterialRequestController;
@@ -86,7 +87,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/resolve', [MaterialDispatchController::class, 'resolve'])->name('resolve');
 
     });
-    
+
+
+    Route::prefix('material-consumption')->name('material-consumption.')->group(function () {
+            // Main Page
+            Route::get('/', [MaterialConsumptionController::class, 'index'])->name('index');
+            // Store Material Consumption
+            Route::post('/', [MaterialConsumptionController::class, 'store'])->name('store');
+        });
+
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

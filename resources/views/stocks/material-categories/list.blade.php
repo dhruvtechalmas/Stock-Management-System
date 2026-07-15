@@ -229,4 +229,18 @@ document.addEventListener('DOMContentLoaded', function () {
 @endif
 
 
+<script>
+            document.addEventListener('DOMContentLoaded', function () {
+
+                document.querySelectorAll('.btn-close').forEach(function (closeButton) {
+
+                    closeButton.addEventListener('click', function () {
+                        window.location.href = "{{ route('material-category.index') }}";
+                    });
+
+                });
+
+            });
+        </script>
+
 @endsection

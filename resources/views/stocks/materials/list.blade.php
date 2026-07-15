@@ -140,21 +140,21 @@
                   <td style="white-space: nowrap;">
 
                     @can('material.edit')
-                    <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
-                      data-bs-target="#editMaterialModal{{ $material->id }}">
-                      <i class="bi bi-pencil-square"></i>
-                    </button>
+                      <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#editMaterialModal{{ $material->id }}">
+                        <i class="bi bi-pencil-square"></i>
+                      </button>
                     @endcan
 
                     @can('material.delete')
-                    <form action="{{ route('materials.destroy', $material->id) }}" method="POST" class="d-inline">
-                      @csrf
-                      @method('DELETE')
+                      <form action="{{ route('materials.destroy', $material->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
 
-                      <button type="submit" class="btn btn-outline-danger btn-sm delete-btn">
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </form>
+                        <button type="submit" class="btn btn-outline-danger btn-sm delete-btn">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
                     @endcan
 
                     <a href="{{ route('materials.show', $material->id) }}" class="btn btn-outline-info btn-sm">
@@ -235,4 +235,17 @@
     </script>
   @endif
 
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      document.querySelectorAll('.btn-close').forEach(function (closeButton) {
+
+        closeButton.addEventListener('click', function () {
+          window.location.href = "{{ route('materials.index') }}";
+        });
+
+      });
+
+    });
+  </script>
 @endsection

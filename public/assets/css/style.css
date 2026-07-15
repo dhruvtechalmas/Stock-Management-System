@@ -385,6 +385,18 @@ a {
 
 }
 
+
+#pendingSection,
+#approvedSection,
+#dispatchedSection,
+#partialSection,
+#receivedSection,
+#discrepancySection,
+#rejectedSection {
+    scroll-margin-top: 90px; /* Adjust based on your header height */
+}
+
+  
 .sidebar-toggle {
   width: 42px;
   height: 42px;

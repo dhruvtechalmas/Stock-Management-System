@@ -23,49 +23,53 @@ class MaterialDispatchController extends Controller implements HasMiddleware
     {
         return [
             new Middleware('permission:material-dispatch.index', only: ['index']),
-            new Middleware('permission:material-dispatch.edit', only: ['approve', 'reject', 'dispatch', 'receive']),
-            new Middleware('role:Kitchen Staff', only: ['resolve']),
+            new Middleware('permission:material-dispatch.approve', only: ['approve', 'reject']),
+            new Middleware('permission:material-dispatch.dispatch', only: ['dispatch']),
+            new Middleware('permission:material-dispatch.receive', only: ['receive']),
+            new Middleware('role:Kitchen Staff', only: ['receive']),
             new Middleware('permission:material-dispatch.resolve', only: ['resolve']),
         ];
     }
 
     public function index()
     {
-        // Material requests waiting for approval or rejection
-        $pendingRequests = MaterialRequest::with(['user','items.material',])->where('status', 'pending')->latest()->get();
+        // Pending Material Requests
+        $pendingRequests = MaterialRequest::with(['user', 'items.material',])
+            ->where('status', 'pending')
+            ->latest()->get();
 
-        // Approved and waiting to be dispatched
-        $approvedDispatches = MaterialDispatch::with(['request.user', 'items'])
+        // Approved (waiting for additional dispatch if needed)
+        $approvedDispatches = MaterialDispatch::with(['request.user', 'items.requestItem', 'items.material',])
             ->where('status', 'pending')
             ->latest()
             ->get();
 
-        // Fully dispatched
-        $dispatched = MaterialDispatch::with(['request.user', 'items'])
-            ->where('status', 'dispatched')
-            ->latest()
-            ->get();
-
-        // Partially dispatched
-        $partialDispatches = MaterialDispatch::with(['request.user', 'items'])
+        // Partially Dispatched
+        $partialApprovedRequests = MaterialDispatch::with(['request.user', 'items.requestItem', 'items.material',])
             ->where('status', 'partially_dispatched')
             ->latest()
             ->get();
 
-        // Successfully received / completed
-        $received = MaterialDispatch::with(['request.user', 'items'])
+        // Fully Dispatched
+        $dispatched = MaterialDispatch::with(['request.user', 'items.requestItem', 'items.material',])
+            ->where('status', 'dispatched')
+            ->latest()
+            ->get();
+
+        // Completed
+        $received = MaterialDispatch::with(['request.user', 'items.requestItem', 'items.material',])
             ->where('status', 'completed')
             ->latest()
             ->get();
 
-        // Received with missing quantity
-        $discrepancy = MaterialDispatch::with(['request.user', 'items'])
+        // Received with Discrepancy
+        $discrepancy = MaterialDispatch::with(['request.user', 'items.requestItem', 'items.material',])
             ->where('status', 'received_with_discrepancy')
             ->latest()
             ->get();
 
-        // Rejected requests
-        $rejected = MaterialDispatch::with(['request.user', 'items'])
+        // Rejected
+        $rejected = MaterialDispatch::with(['request.user', 'items.requestItem', 'items.material',])
             ->where('status', 'rejected')
             ->latest()
             ->get();
@@ -73,8 +77,8 @@ class MaterialDispatchController extends Controller implements HasMiddleware
         return view('stocks.material-dispatch.list', compact(
             'pendingRequests',
             'approvedDispatches',
+            'partialApprovedRequests',
             'dispatched',
-            'partialDispatches',
             'received',
             'discrepancy',
             'rejected'
@@ -92,7 +96,6 @@ class MaterialDispatchController extends Controller implements HasMiddleware
                 ->lockForUpdate()
                 ->firstOrFail();
 
-
             if ($materialRequest->status !== 'pending') {
 
                 throw ValidationException::withMessages([
@@ -101,15 +104,16 @@ class MaterialDispatchController extends Controller implements HasMiddleware
                 ]);
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | Create Dispatch
+            |--------------------------------------------------------------------------
+            */
 
             $dispatch = MaterialDispatch::create([
+
                 'dispatch_no' =>
-                    'MD-' . str_pad(
-                        MaterialDispatch::count() + 1,
-                        6,
-                        '0',
-                        STR_PAD_LEFT
-                    ),
+                    'MD-' . str_pad(MaterialDispatch::count() + 1, 6, '0', STR_PAD_LEFT),
 
                 'material_request_id' => $materialRequest->id,
 
@@ -117,9 +121,16 @@ class MaterialDispatchController extends Controller implements HasMiddleware
 
                 'dispatched_at' => now(),
 
-                'status' => 'partially_dispatched',
+                // temporary
+                'status' => 'pending',
+
             ]);
 
+            /*
+            |--------------------------------------------------------------------------
+            | Dispatch Items
+            |--------------------------------------------------------------------------
+            */
 
             foreach ($validated['items'] as $itemData) {
 
@@ -127,28 +138,39 @@ class MaterialDispatchController extends Controller implements HasMiddleware
                     ->where('id', $itemData['request_item_id'])
                     ->firstOrFail();
 
-
                 $dispatchQty = (float) $itemData['dispatch_qty'];
 
                 $requestedQty = (float) $requestItem->requested_qty;
 
+                /*
+                |--------------------------------------------------------------------------
+                | Validation
+                |--------------------------------------------------------------------------
+                */
+
+                if ($dispatchQty <= 0) {
+
+                    throw ValidationException::withMessages([
+                        'items' => 'Dispatch quantity must be greater than zero.',
+                    ]);
+                }
 
                 if ($dispatchQty > $requestedQty) {
 
                     throw ValidationException::withMessages([
                         'items' =>
-                            'Dispatch quantity cannot exceed requested quantity.',
+                            "Dispatch quantity cannot exceed requested quantity.",
                     ]);
                 }
 
+                /*
+                |--------------------------------------------------------------------------
+                | Check Stock
+                |--------------------------------------------------------------------------
+                */
 
-                $material = Material::where(
-                    'id',
-                    $requestItem->material_id
-                )
-                    ->lockForUpdate()
-                    ->firstOrFail();
-
+                $material = Material::lockForUpdate()
+                    ->findOrFail($requestItem->material_id);
 
                 if ($dispatchQty > $material->current_stock) {
 
@@ -158,15 +180,23 @@ class MaterialDispatchController extends Controller implements HasMiddleware
                     ]);
                 }
 
+                /*
+                |--------------------------------------------------------------------------
+                | Deduct Stock
+                |--------------------------------------------------------------------------
+                */
 
-                // Deduct stock
                 $material->decrement(
                     'current_stock',
                     $dispatchQty
                 );
 
+                /*
+                |--------------------------------------------------------------------------
+                | Create Dispatch Item
+                |--------------------------------------------------------------------------
+                */
 
-                // Create dispatch item
                 $dispatch->items()->create([
 
                     'material_request_item_id' => $requestItem->id,
@@ -177,37 +207,38 @@ class MaterialDispatchController extends Controller implements HasMiddleware
 
                     'received_qty' => 0,
 
-                    'missing_qty' => 0,
+                    'missing_qty' => $requestedQty - $dispatchQty,
+
                 ]);
             }
 
-
             $dispatch->load('items.requestItem');
 
+            $hasRemaining = $dispatch->items->contains(function ($item) {
 
-            // Check if anything is still remaining
-            $hasRemaining = $dispatch->items->contains(
-                function ($item) {
+                return (float) $item->dispatched_qty < (float) $item->requestItem->requested_qty;
 
-                    return (float) $item->dispatched_qty
-                        < (float) $item->requestItem->requested_qty;
-                }
-            );
-
+            });
 
             $dispatch->update([
 
                 'status' => $hasRemaining
                     ? 'partially_dispatched'
                     : 'dispatched',
-            ]);
 
+            ]);
+            /*
+            |--------------------------------------------------------------------------
+            | Update Material Request
+            |--------------------------------------------------------------------------
+            */
 
             $materialRequest->update([
                 'status' => 'approved',
+                'approved_by' => Auth::id(),
+                'approved_at' => now(),
             ]);
         });
-
 
         return redirect()
             ->route('material-dispatch.index')
@@ -217,10 +248,7 @@ class MaterialDispatchController extends Controller implements HasMiddleware
             ]);
     }
 
-
-    /**
-     * Reject Material Request
-     */
+    //   Reject Material Request 
     public function reject(RejectMaterialDispatchRequest $request)
     {
         $validated = $request->validated();
@@ -257,167 +285,50 @@ class MaterialDispatchController extends Controller implements HasMiddleware
             }
         });
 
-        return redirect()
-            ->route('material-dispatch.index')
-            ->with('success', 'Material request rejected successfully.');
+        return redirect()->route('material-dispatch.index')->with('success', 'Material request rejected successfully.');
     }
-
-
-    /**
-     * Dispatch Materials
-     * Handles both:
-     * 1. Partial Dispatch
-     * 2. Full Dispatch
-     */
+ 
+    //   Dispatch Materials
+    //   Handles both:
+    //   1. Partial Dispatch
+    //   2. Full Dispatch
     public function dispatch(DispatchMaterialRequest $request)
     {
-        $validated = $request->validated();
+        $dispatch = MaterialDispatch::findOrFail(
+            $request->material_dispatch_id
+        );
 
-        DB::transaction(function () use ($validated) {
-
-            // Get dispatch and lock it
-            $dispatch = MaterialDispatch::where(
-                'id',
-                $validated['material_dispatch_id']
-            )
-                ->lockForUpdate()
-                ->firstOrFail();
-
-
-            // Only pending or partial dispatch can be dispatched
-            if (
-                !in_array($dispatch->status, [
-                    'pending',
-                    'partially_dispatched',
-                ])
-            ) {
-
-                throw ValidationException::withMessages([
-                    'material_dispatch_id' =>
-                        'This material request cannot be dispatched.',
-                ]);
-            }
-
-
-            foreach ($validated['items'] as $itemData) {
-
-                // Get dispatch item
-                $dispatchItem = MaterialDispatchItem::with('requestItem')
-                    ->where('material_dispatch_id', $dispatch->id)
-                    ->findOrFail($itemData['id']);
-
-
-                $dispatchQty = (float) $itemData['dispatch_qty'];
-
-                $requestedQty =
-                    (float) $dispatchItem->requestItem->requested_qty;
-
-                $alreadyDispatched =
-                    (float) $dispatchItem->dispatched_qty;
-
-                $remainingQty =
-                    $requestedQty - $alreadyDispatched;
-
-
-                // Prevent over-dispatch
-                if ($dispatchQty > $remainingQty) {
-
-                    throw ValidationException::withMessages([
-                        'items' =>
-                            'Dispatch quantity cannot be greater than remaining quantity.',
-                    ]);
-                }
-
-
-                // Get material and lock stock
-                $material = Material::where(
-                    'id',
-                    $dispatchItem->material_id
-                )
-                    ->lockForUpdate()
-                    ->firstOrFail();
-
-
-                // Check stock
-                if ($dispatchQty > $material->current_stock) {
-
-                    throw ValidationException::withMessages([
-                        'items' =>
-                            "Insufficient stock for {$material->material_name}.",
-                    ]);
-                }
-
-
-                // Deduct stock
-                $material->decrement(
-                    'current_stock',
-                    $dispatchQty
-                );
-
-
-                // Add quantity to previous dispatched quantity
-                $dispatchItem->increment(
-                    'dispatched_qty',
-                    $dispatchQty
-                );
-            }
-
-
-            // Reload updated quantities
-            $dispatch->load('items.requestItem');
-
-
-            // Check whether any quantity is still remaining
-            $hasRemaining = $dispatch->items->contains(
-                function ($item) {
-
-                    return (float) $item->dispatched_qty
-                        < (float) $item->requestItem->requested_qty;
-                }
-            );
-
-
-            // Automatically decide status
-            $dispatch->update([
-
-                'status' => $hasRemaining
-                    ? 'partially_dispatched'
-                    : 'dispatched',
-
-                'dispatched_by' => Auth::id(),
-
-                'dispatched_at' => now(),
+        if ($dispatch->status !== 'partially_dispatched') {
+            return back()->with([
+                'message' => 'Only partially dispatched requests can be dispatched.',
+                'alert-type' => 'error',
             ]);
-        });
+        }
 
+        $dispatch->update([
+            'status' => 'dispatched',
+            'dispatched_by' => auth()->id(),
+            'dispatched_at' => now(),
+        ]);
 
         return redirect()
             ->route('material-dispatch.index')
             ->with([
-                'message' => 'Material dispatched successfully.',
+                'message' => 'Request moved to Dispatched successfully.',
                 'alert-type' => 'success',
             ]);
     }
-
-    /**
-     * Receive dispatched materials
-     */
+   
+    //   Receive dispatched materials   
     public function receive(ReceiveMaterialRequest $request)
     {
         $validated = $request->validated();
 
         DB::transaction(function () use ($validated) {
 
-            // Get dispatch
-            $dispatch = MaterialDispatch::where(
-                'id',
-                $validated['material_dispatch_id']
-            )
-                ->lockForUpdate()
-                ->firstOrFail();
+            $dispatch = MaterialDispatch::lockForUpdate()
+                ->findOrFail($validated['material_dispatch_id']);
 
-
-            // Only fully dispatched materials can be received
             if ($dispatch->status !== 'dispatched') {
 
                 throw ValidationException::withMessages([
@@ -426,61 +337,67 @@ class MaterialDispatchController extends Controller implements HasMiddleware
                 ]);
             }
 
-
             foreach ($validated['items'] as $itemData) {
 
-                // Get item belonging to this dispatch
-                $dispatchItem = MaterialDispatchItem::where(
-                    'material_dispatch_id',
-                    $dispatch->id
-                )
+                $dispatchItem = MaterialDispatchItem::with([
+                    'requestItem',
+                    'material',
+                ])
+                    ->where('material_dispatch_id', $dispatch->id)
                     ->where('id', $itemData['id'])
                     ->lockForUpdate()
                     ->firstOrFail();
 
+                $requestedQty =
+                    (float) $dispatchItem->requestItem->requested_qty;
 
-                $receivedQty = (float) $itemData['received_qty'];
+                $dispatchedQty =
+                    (float) $dispatchItem->dispatched_qty;
 
-                $dispatchedQty = (float) $dispatchItem->dispatched_qty;
+                $receivedQty =
+                    (float) $itemData['received_qty'];
 
-
-                // Cannot receive more than dispatched
                 if ($receivedQty > $dispatchedQty) {
 
                     throw ValidationException::withMessages([
                         'items' =>
-                            'Received quantity cannot be greater than dispatched quantity.',
+                            'Received quantity cannot exceed dispatched quantity.',
                     ]);
                 }
 
+                /*
+                |--------------------------------------------------------------------------
+                | YOUR BUSINESS FLOW
+                |
+                | Missing = Requested - Received
+                |--------------------------------------------------------------------------
+                */
 
-                // Calculate missing quantity
-                $missingQty = $dispatchedQty - $receivedQty;
+                $missingQty = max(
+                    0,
+                    $requestedQty - $receivedQty
+                );
 
-
-                // Update dispatch item
                 $dispatchItem->update([
+
                     'received_qty' => $receivedQty,
+
                     'missing_qty' => $missingQty,
+
                 ]);
             }
 
-
-            // Reload updated items
             $dispatch->load('items');
 
-
-            // Check if any item has missing quantity
-            $hasDiscrepancy = $dispatch->items->contains(function ($item) {
+            $hasMissing = $dispatch->items->contains(function ($item) {
 
                 return (float) $item->missing_qty > 0;
 
             });
 
-
-            // Update main dispatch
             $dispatch->update([
-                'status' => $hasDiscrepancy
+
+                'status' => $hasMissing
                     ? 'received_with_discrepancy'
                     : 'completed',
 
@@ -488,10 +405,10 @@ class MaterialDispatchController extends Controller implements HasMiddleware
 
                 'received_at' => now(),
 
-                'remarks' => $validated['remarks'] ?? $dispatch->remarks,
+                'remarks' => $validated['remarks'] ?? null,
+
             ]);
         });
-
 
         return redirect()
             ->route('material-dispatch.index')
@@ -501,30 +418,35 @@ class MaterialDispatchController extends Controller implements HasMiddleware
             ]);
     }
 
-    /**
-     * Resolve Material Discrepancy
-     */
-    /**
-     * Resolve Material Discrepancy
-     */
-
+   
+    //   Resolve Material Discrepancy
     public function resolve(ResolveDiscrepancyRequest $request)
     {
         $validated = $request->validated();
 
-        $dispatch = MaterialDispatch::where(
-            'status',
-            'received_with_discrepancy'
-        )->findOrFail($validated['material_dispatch_id']);
+        DB::transaction(function () use ($validated) {
 
-        DB::transaction(function () use ($dispatch) {
+            $dispatch = MaterialDispatch::lockForUpdate()
+                ->where('status', 'received_with_discrepancy')
+                ->findOrFail(
+                    $validated['material_dispatch_id']
+                );
 
-            // Keep missing_qty unchanged for history
+            /*
+            |--------------------------------------------------------------------------
+            | Keep missing quantity for history.
+            | Only change dispatch status.
+            |--------------------------------------------------------------------------
+            */
 
             $dispatch->update([
+
                 'status' => 'completed',
+
                 'resolved_by' => Auth::id(),
+
                 'resolved_at' => now(),
+
             ]);
         });
 

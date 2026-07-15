@@ -58,9 +58,9 @@ class RolePermissionSeeder extends Seeder
 
             // Material Dispatch
             'material-dispatch.index',
-            'material-dispatch.create',
-            'material-dispatch.view',
-            'material-dispatch.edit',
+            'material-dispatch.approve',
+            'material-dispatch.dispatch',
+            'material-dispatch.receive',
             'material-dispatch.resolve',
             'material-dispatch.delete',
 
@@ -124,8 +124,9 @@ class RolePermissionSeeder extends Seeder
 
             // Material Dispatch
             'material-dispatch.index',
-            'material-dispatch.view',
+            'material-dispatch.receive',
             'material-dispatch.resolve',
+            'material-dispatch.delete',
 
             // Material Consumption
             'material-consumption.index',

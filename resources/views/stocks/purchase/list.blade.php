@@ -157,9 +157,24 @@
                         window.location.href = "{{ route('purchases.index') }}";
                     });
                 });
+
+
             </script>
         @endif
 
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+
+                document.querySelectorAll('.btn-close').forEach(function (closeButton) {
+
+                    closeButton.addEventListener('click', function () {
+                        window.location.href = "{{ route('purchases.index') }}";
+                    });
+
+                });
+
+            });
+        </script>
         {{--
         <script>
             flatpickr("#purchase_date", {

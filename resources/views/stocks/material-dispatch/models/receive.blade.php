@@ -8,7 +8,7 @@
 
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5>Receive Materials - {{ $dispatch->request->request_no }}</h5>
+                        <h5>Receive Materials - {{ $dispatch->request->request_no ?? '-'}}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 

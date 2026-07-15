@@ -239,4 +239,18 @@
                 </script>
             @endif
 
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function () {
+
+                document.querySelectorAll('.btn-close').forEach(function (closeButton) {
+
+                    closeButton.addEventListener('click', function () {
+                        window.location.href = "{{ route('suppliers.index') }}";
+                    });
+
+                });
+
+            });
+        </script>
 @endsection

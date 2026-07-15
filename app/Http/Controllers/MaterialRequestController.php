@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMaterialRequestRequest;
 use App\Http\Requests\UpdateMaterialRequestRequest;
 use App\Models\Material;
+use App\Models\MaterialConsumption;
+use App\Models\MaterialDispatch;
 use App\Models\MaterialRequest;
 use DB;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -60,38 +62,38 @@ class MaterialRequestController extends Controller implements HasMiddleware
     /**
      * Store a newly created resource in storage.
      */
-   public function store(StoreMaterialRequestRequest $request)
-{
-    DB::transaction(function () use ($request) {
+    public function store(StoreMaterialRequestRequest $request)
+    {
+        DB::transaction(function () use ($request) {
 
-        $materialRequest = MaterialRequest::create([
-            'request_no' => 'MR-' . str_pad(
-                (MaterialRequest::max('id') ?? 0) + 1,
-                6,
-                '0',
-                STR_PAD_LEFT
-            ),
-            'requested_by' => Auth::id(),
-            'request_date' => $request->request_date,
-            'status' => 'pending',
-            'remarks' => $request->remarks,
-        ]);
-
-        foreach ($request->items as $item) {
-            $materialRequest->items()->create([
-                'material_id' => $item['material_id'],
-                'requested_qty' => $item['requested_qty'],
+            $materialRequest = MaterialRequest::create([
+                'request_no' => 'MR-' . str_pad(
+                    (MaterialRequest::max('id') ?? 0) + 1,
+                    6,
+                    '0',
+                    STR_PAD_LEFT
+                ),
+                'requested_by' => Auth::id(),
+                'request_date' => $request->request_date,
+                'status' => 'pending',
+                'remarks' => $request->remarks,
             ]);
-        }
-    });
 
-    return redirect()
-        ->route('material-requests.index')
-        ->with([
-            'message' => 'Material Request created successfully.',
-            'alert-type' => 'success',
-        ]);
-}
+            foreach ($request->items as $item) {
+                $materialRequest->items()->create([
+                    'material_id' => $item['material_id'],
+                    'requested_qty' => $item['requested_qty'],
+                ]);
+            }
+        });
+
+        return redirect()
+            ->route('material-requests.index')
+            ->with([
+                'message' => 'Material Request created successfully.',
+                'alert-type' => 'success',
+            ]);
+    }
 
 
     /**
@@ -149,26 +151,50 @@ class MaterialRequestController extends Controller implements HasMiddleware
      */
     public function destroy(MaterialRequest $materialRequest)
     {
-        $materialRequest->delete();
+        DB::transaction(function () use ($materialRequest) {
 
-        return redirect()->route('material-requests.index')->with([
-            'message' => 'Material Request deleted successfully.',
-            'alert-type' => 'success',
-        ]);
+            $dispatches = MaterialDispatch::with('items')
+                ->where('material_request_id', $materialRequest->id)
+                ->get();
+
+            foreach ($dispatches as $dispatch) {
+
+                foreach ($dispatch->items as $item) {
+
+                    // Delete Material Consumption
+                    MaterialConsumption::where(
+                        'material_dispatch_item_id',
+                        $item->id
+                    )->delete();
+                }
+
+                // Delete Dispatch Items
+                $dispatch->items()->delete();
+
+                // Delete Dispatch
+                $dispatch->delete();
+            }
+
+            // Delete Request Items
+            $materialRequest->items()->delete();
+
+            // Delete Material Request
+            $materialRequest->delete();
+        });
+
+        return redirect()
+            ->route('material-requests.index')
+            ->with([
+                'message' => 'Material Request deleted successfully.',
+                'alert-type' => 'success',
+            ]);
     }
 
     public function show(MaterialRequest $materialRequest)
     {
-        $materialRequest->load([
-            'user',
-            'items.material',
-            'approvedBy',
-        ]);
+        $materialRequest->load(['user', 'items.material', 'approvedBy',]);
 
-        return view(
-            'stocks.material-request.view',
-            compact('materialRequest')
-        );
+        return view('stocks.material-request.view', compact('materialRequest'));
     }
     /**
      * Approve Material Request

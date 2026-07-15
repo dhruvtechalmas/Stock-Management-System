@@ -46,7 +46,7 @@
                 </button>
 
                 <button class="btn btn-outline-secondary dispatch-tab" data-target="partialSection">
-                    Partial Dispatched ({{ $partialDispatches->count() }})
+                    Partial Dispatched ({{ $partialApprovedRequests->count() }})
                 </button>
 
                 <button class="btn btn-outline-secondary dispatch-tab" data-target="receivedSection">
@@ -359,11 +359,11 @@
 
                                         <tr>
 
-                                            <td>{{ $dispatch->request->request_no }}</td>
+                                            <td>{{ $dispatch->request?->request_no ?? '-' }}</td>
 
-                                            <td>{{ $dispatch->request->user->name }}</td>
+                                            <td>{{ $dispatch->request?->user?->name ?? '-' }}</td>
 
-                                            <td>{{ $dispatch->request->request_date->format('d M Y') }}</td>
+                                            <td>{{ $dispatch->request?->request_date?->format('d M Y') ?? '-' }}</td>
 
                                             <td>{{ $dispatch->items->count() }}</td>
 
@@ -388,7 +388,8 @@
 
                                                 </button>
 
-                                                @can('material-dispatch.edit')
+                                                @role('Kitchen Staff')
+                                                @can('material-dispatch.receive')
                                                     <button class="btn btn-dark btn-sm" data-bs-toggle="modal"
                                                         data-bs-target="#receiveModal{{ $dispatch->id }}">
 
@@ -398,6 +399,7 @@
 
                                                     </button>
                                                 @endcan
+                                                @endrole
 
                                             </td>
 
@@ -446,21 +448,19 @@
                         <div class="d-flex justify-content-between align-items-center mb-4">
 
                             <h4 class="mb-0 fw-bold">
-                                Partial Dispatches Requests
+                                Partial Approve Requests
 
                                 <span class="badge bg-warning text-dark ms-2">
-                                    {{ $partialDispatches->count() }}
+                                    {{ $partialApprovedRequests->count() }}
                                 </span>
                             </h4>
 
-                            <div style="width: 300px;">
+                            <div style="width:300px;">
                                 <input type="text" class="form-control" placeholder="Filter by request...">
                             </div>
 
                         </div>
 
-
-                        {{-- Table --}}
                         <div class="table-responsive">
 
                             <table class="table align-middle">
@@ -468,35 +468,26 @@
                                 <thead>
 
                                     <tr>
+
                                         <th>REQUEST #</th>
                                         <th>REQUESTED BY</th>
                                         <th>REQUEST DATE</th>
                                         <th>TOTAL ITEMS</th>
-                                        <th>REMAINING QTY</th>
+                                        <th>DISPATCHED QTY</th>
                                         <th>STATUS</th>
                                         <th>ACTIONS</th>
+
                                     </tr>
 
                                 </thead>
 
                                 <tbody>
 
-                                    @forelse($partialDispatches as $dispatch)
+                                    @forelse($partialApprovedRequests as $dispatch)
 
                                         @php
-                                            $totalRemaining = $dispatch->items->sum(function ($item) {
-
-                                                $requestedQty = (float) $item->requestItem->requested_qty;
-
-                                                $dispatchedQty = (float) $item->dispatched_qty;
-
-                                                return max(
-                                                    0,
-                                                    $requestedQty - $dispatchedQty
-                                                );
-                                            });
+                                            $totalDispatchQty = $dispatch->items->sum('dispatched_qty');
                                         @endphp
-
 
                                         <tr>
 
@@ -505,44 +496,42 @@
                                                 {{ $dispatch->request?->request_no ?? '-' }}
                                             </td>
 
-
                                             {{-- Requested By --}}
                                             <td>
                                                 {{ $dispatch->request?->user?->name ?? '-' }}
                                             </td>
-
 
                                             {{-- Request Date --}}
                                             <td>
                                                 {{ $dispatch->request?->request_date?->format('d M Y') ?? '-' }}
                                             </td>
 
-
                                             {{-- Total Items --}}
                                             <td>
                                                 {{ $dispatch->items->count() }}
                                             </td>
 
-
-                                            {{-- Total Remaining Quantity --}}
+                                            {{-- Dispatched Qty --}}
                                             <td>
 
-                                                <span class="fw-bold text-danger">
-                                                    {{ $totalRemaining }}
+                                                <span class="fw-bold text-primary">
+
+                                                    {{ number_format($totalDispatchQty, 2) }}
+
                                                 </span>
 
                                             </td>
-
 
                                             {{-- Status --}}
                                             <td>
 
-                                                <span class="badge bg-warning text-dark">
-                                                    Partial Dispatch
+                                                <span class="badge bg-warning">
+
+                                                    Ready To Dispatch
+
                                                 </span>
 
                                             </td>
-
 
                                             {{-- Actions --}}
                                             <td>
@@ -553,19 +542,20 @@
                                                     data-bs-target="#viewDispatchModal{{ $dispatch->id }}">
 
                                                     <i class="bi bi-eye"></i>
+
                                                     View
 
                                                 </button>
 
-
-                                                {{-- Dispatch Remaining --}}
                                                 @can('material-dispatch.edit')
 
+                                                    {{-- Move To Dispatch --}}
                                                     <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
-                                                        data-bs-target="#dispatchModal{{ $dispatch->id }}">
+                                                        data-bs-target="#partialApproveModal{{ $dispatch->id }}">
 
                                                         <i class="bi bi-truck"></i>
-                                                        Dispatch Remaining
+
+                                                        Dispatch
 
                                                     </button>
 
@@ -575,14 +565,13 @@
 
                                         </tr>
 
-
                                     @empty
 
                                         <tr>
 
                                             <td colspan="7" class="text-center py-4">
 
-                                                No Partial Dispatch Requests Found
+                                                No Partial Approve Requests Found.
 
                                             </td>
 
@@ -596,13 +585,13 @@
 
                         </div>
 
-
-                        {{-- Footer --}}
                         <div class="mt-3">
 
-                            Total:
+                            Total :
                             <strong>
-                                {{ $partialDispatches->count() }}
+
+                                {{ $partialApprovedRequests->count() }}
+
                             </strong>
 
                         </div>
@@ -667,11 +656,11 @@
 
                                         <tr>
 
-                                            <td>{{ $dispatch->request->request_no }}</td>
+                                            <td>{{ $dispatch->request?->request_no ?? '-' }}</td>
 
-                                            <td>{{ $dispatch->request->user->name }}</td>
+                                            <td>{{ $dispatch->request?->user?->name ?? '-' }}</td>
 
-                                            <td>{{ $dispatch->request->request_date->format('d M Y') }}</td>
+                                            <td>{{ $dispatch->request?->request_date?->format('d M Y') ?? '-' }}</td>
 
                                             <td>{{ $dispatch->items->count() }}</td>
 
@@ -750,7 +739,7 @@
                             <div class="d-flex align-items-center">
 
                                 <h4 class="mb-0 fw-bold">
-                                    Discrepancy Requests
+                                    Receive & Discrepancy Requests
 
 
                                 </h4>
@@ -758,7 +747,7 @@
                             </div>
 
                             <div style="width:300px;">
-                                <input type="text" class="form-control" placeholder="🔍 Filter by request...">
+                                <input type="text" class="form-control" placeholder="Filter by request...">
                             </div>
 
                         </div>
@@ -793,11 +782,11 @@
 
                                         <tr>
 
-                                            <td>{{ $dispatch->request->request_no }}</td>
+                                            <td>{{ $dispatch->request?->request_no ?? '-' }}</td>
 
-                                            <td>{{ $dispatch->request->user->name }}</td>
+                                            <td>{{ $dispatch->request?->user?->name ?? '-' }}</td>
 
-                                            <td>{{ $dispatch->request->request_date->format('d M Y') }}</td>
+                                            <td>{{ $dispatch->request?->request_date?->format('d M Y') ?? '-' }}</td>
 
                                             <td>{{ $dispatch->items->count() }}</td>
 
@@ -822,7 +811,7 @@
 
                                                 </button>
 
-                                                @role('Kitchen Staff')
+                                                @role('Admin')
                                                 @can('material-dispatch.resolve')
                                                     <button class="btn btn-dark btn-sm" data-bs-toggle="modal"
                                                         data-bs-target="#resolveModal{{ $dispatch->id }}">
@@ -989,15 +978,19 @@
 
             @include('stocks.material-dispatch.models.view')
 
+            @role('Admin')
             @can('material-dispatch.edit')
                 @include('stocks.material-dispatch.models.approve')
                 @include('stocks.material-dispatch.models.dispatch')
-                @include('stocks.material-dispatch.models.receive')
             @endcan
-
-            @role('Kitchen Staff')
             @can('material-dispatch.resolve')
                 @include('stocks.material-dispatch.models.resolve')
+            @endcan
+            @endrole
+
+            @role('Kitchen Staff')
+            @can('material-dispatch.receive')
+                @include('stocks.material-dispatch.models.receive')
             @endcan
             @endrole
 
@@ -1008,6 +1001,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
+            // ============================
+            // Dispatch Tabs
+            // ============================
             const buttons = document.querySelectorAll('.dispatch-tab');
             const sections = document.querySelectorAll('[id$="Section"]');
 
@@ -1015,7 +1011,6 @@
 
                 button.addEventListener('click', function () {
 
-                    // Active Button
                     buttons.forEach(function (btn) {
                         btn.classList.remove('btn-dark', 'text-white');
                         btn.classList.add('btn-outline-secondary');
@@ -1024,26 +1019,47 @@
                     this.classList.remove('btn-outline-secondary');
                     this.classList.add('btn-dark', 'text-white');
 
-                    // Remove previous highlight
                     sections.forEach(function (section) {
-                        section.querySelector('.card').classList.remove('border-primary', 'shadow');
+                        const card = section.querySelector('.card');
+
+                        if (card) {
+                            card.classList.remove('border-primary', 'shadow');
+                        }
                     });
 
-                    // Current Section
                     const target = document.getElementById(this.dataset.target);
 
                     if (target) {
+                        const card = target.querySelector('.card');
 
-                        target.querySelector('.card').classList.add('border-primary', 'shadow');
+                        if (card) {
+                            card.classList.add('border-primary', 'shadow');
+                        }
 
                         window.scrollTo({
                             top: target.offsetTop - 80,
                             behavior: 'smooth'
                         });
-
                     }
 
                 });
+
+            });
+
+
+            // ============================
+            // Refresh when modal is closed
+            // ============================
+            document.addEventListener('hidden.bs.modal', function (event) {
+
+                const modal = event.target;
+
+                if (
+                    modal.id.startsWith('approveModal') ||
+                    modal.id.startsWith('rejectModal')
+                ) {
+                    window.location.reload();
+                }
 
             });
 
