@@ -26,4 +26,9 @@ class Material extends Model
     {
         return $this->hasMany(PurchaseItem::class);
     }
+
+    public function wastages()
+    {
+        return $this->hasMany(Wastage::class);
+    }
 }

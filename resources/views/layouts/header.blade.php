@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="{{ url('/assets/vendors/bootstrap-icons/bootstrap-icons.css') }}">
   <link rel="stylesheet" href="{{ url('/assets/css/style.css') }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 </head>
@@ -118,7 +118,7 @@
               <span class="nav-icon">
                 <i class="bi bi-arrow-left-right"></i>
               </span>
-              <span class="nav-text">Partially Approved </span>
+              <span class="nav-text">Partially Approve</span>
             </a>
 
             <a class="nav-link  dispatch-child" href="{{ route('material-dispatch.index') }}#dispatchedSection">

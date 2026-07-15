@@ -241,6 +241,24 @@
 
 
             {{-- ================= CONSUMPTION HISTORY ================= --}}
+
+                        {{-- ================= PAGE HEADING ================= --}}
+            <div class="page-heading">
+
+                <div class="page-heading-copy">
+
+                    <span class="page-icon">
+                        <i class="bi bi-clock-history"></i>
+                    </span>
+
+                    <div>
+                        <p class="eyebrow mb-1">Stock</p>
+                        <h1 class="h3 mb-1">Consumption History</h1>
+                    </div>
+
+                </div>
+
+            </div>
             <section class="panel">
 
                 <div class="panel-header">
@@ -251,14 +269,14 @@
                             placeholder="Search Consumption History" data-table-search="consumptionHistoryTable">
 
                     </div>
-
+{{-- 
                     <a href="#" class="btn btn-outline-secondary btn-sm">
 
                         <i class="bi bi-download"></i>
 
                         Export PDF
 
-                    </a>
+                    </a> --}}
 
                 </div>
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WastageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -90,11 +91,13 @@ Route::middleware('auth')->group(function () {
 
 
     Route::prefix('material-consumption')->name('material-consumption.')->group(function () {
-            // Main Page
-            Route::get('/', [MaterialConsumptionController::class, 'index'])->name('index');
-            // Store Material Consumption
-            Route::post('/', [MaterialConsumptionController::class, 'store'])->name('store');
-        });
+        // Main Page
+        Route::get('/', [MaterialConsumptionController::class, 'index'])->name('index');
+        // Store Material Consumption
+        Route::post('/', [MaterialConsumptionController::class, 'store'])->name('store');
+    });
+
+    Route::resource('wastages', WastageController::class);
 
 });
 

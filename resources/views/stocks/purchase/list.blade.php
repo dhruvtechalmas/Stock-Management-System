@@ -50,9 +50,9 @@
                         <input class="form-control form-control-sm table-search" type="search" placeholder="Search Purchase"
                             data-table-search="purchaseTable">
                     </div>
-                    <a href="#" class="btn btn-outline-secondary btn-sm">
+                    {{-- <a href="#" class="btn btn-outline-secondary btn-sm">
                         <i class="bi bi-download"></i> Export PDF
-                    </a>
+                    </a> --}}
                 </div>
 
                 <div class="table-responsive">

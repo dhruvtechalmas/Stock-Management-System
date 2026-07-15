@@ -62,9 +62,9 @@
               data-table-search="materialsTable">
 
           </div>
-          <a href="#" class="btn btn-outline-secondary btn-sm ">
+          {{-- <a href="#" class="btn btn-outline-secondary btn-sm ">
             <i class="bi bi-download"></i> Export PDF
-          </a>
+          </a> --}}
 
 
         </div>

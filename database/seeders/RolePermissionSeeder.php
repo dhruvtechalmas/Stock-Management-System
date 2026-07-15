@@ -133,6 +133,13 @@ class RolePermissionSeeder extends Seeder
             'material-consumption.create',
             'material-consumption.view',
 
+            // Material Wastage
+            'wastage.index',
+            'wastage.create',
+            'wastage.view',
+            'wastage.edit',
+            'wastage.delete',
+
             // Current Stock Report
             'report.current-stock',
         ]);

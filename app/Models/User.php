@@ -40,4 +40,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(MaterialRequest::class, 'requested_by');
     }
+
+    public function recordedWastages()
+    {
+        return $this->hasMany(Wastage::class, 'recorded_by');
+    }
 }
