@@ -6,9 +6,21 @@ use App\Models\Material;
 use App\Models\StockLedger;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class StockLedgerController extends Controller
+class StockLedgerController extends Controller implements HasMiddleware
 {
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:report.stock-ledger', only: ['index']),
+        ];
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -36,7 +48,7 @@ class StockLedgerController extends Controller
             $query->whereDate('transaction_date', '<=', $request->to_date);
         }
 
-        $ledgers = $query->latest('transaction_date')->paginate(15)->withQueryString();
+        $ledgers = $query->orderByDesc('transaction_date')->orderByDesc('id')->paginate(15)->withQueryString();
 
         $materials = Material::orderBy('material_name')->get(); // Use your correct column
         $users = User::orderBy('name')->get();
@@ -44,51 +56,5 @@ class StockLedgerController extends Controller
         return view('stocks.stock-ledger.list', compact('ledgers', 'materials', 'users'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(StockLedger $stockLedger)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(StockLedger $stockLedger)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, StockLedger $stockLedger)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(StockLedger $stockLedger)
-    {
-        //
-    }
+  
 }

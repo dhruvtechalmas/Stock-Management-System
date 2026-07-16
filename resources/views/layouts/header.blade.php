@@ -173,15 +173,18 @@
           <span class="nav-text">Current Stock</span>
         </a>
 
-        <a class="nav-link {{ request()->routeIs('stock-ledger.*') ? 'active' : '' }}" href="{{ url('stock-ledger') }}">
+        @can('report.stock-ledger')
+           <a class="nav-link {{ request()->routeIs('stock-ledger.*') ? 'active' : '' }}" href="{{ url('stock-ledger') }}">
           <span class="nav-icon"><i class="bi bi-journal-text" aria-hidden="true"></i></span>
           <span class="nav-text">Stock Ledger</span>
         </a>
+        @endcan
+       
 
-        <a class="nav-link {{ request()->routeIs('stock-report.*') ? 'active' : '' }}" href="{{ url('stock-report') }}">
+        {{-- <a class="nav-link {{ request()->routeIs('stock-report.*') ? 'active' : '' }}" href="{{ url('stock-report') }}">
           <span class="nav-icon"><i class="bi bi-file-earmark-bar-graph" aria-hidden="true"></i></span>
           <span class="nav-text">Stock Report</span>
-        </a>
+        </a> --}}
 
         <!-- Settings Heading -->
         <div class="sidebar-heading">SETTINGS</div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMaterialConsumptionRequest;
 use App\Models\MaterialConsumption;
 use App\Models\MaterialDispatchItem;
+use App\Models\StockLedger;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
@@ -109,7 +110,7 @@ class MaterialConsumptionController extends Controller implements HasMiddleware
             }
 
 
-            MaterialConsumption::create([
+            $consumption = MaterialConsumption::create([
                 'material_dispatch_item_id' => $dispatchItem->id,
 
                 'material_id' => $dispatchItem->material_id,
@@ -122,6 +123,18 @@ class MaterialConsumptionController extends Controller implements HasMiddleware
 
                 'recorded_by' => auth()->id(),
             ]);
+
+
+            StockLedger::add(
+                $dispatchItem->material_id,
+                'consumption',
+                MaterialConsumption::class,
+                $consumption->id,
+                0,
+                $validated['consumed_qty'],
+                $dispatchItem->material->current_stock,
+                'Material Consumed'
+            );
         });
 
 

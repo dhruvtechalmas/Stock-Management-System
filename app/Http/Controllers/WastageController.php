@@ -6,6 +6,7 @@ use App\Http\Requests\StoreWastageRequest;
 use App\Models\Material;
 use App\Models\MaterialConsumption;
 use App\Models\MaterialDispatchItem;
+use App\Models\StockLedger;
 use App\Models\Wastage;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -104,7 +105,7 @@ class WastageController extends Controller implements HasMiddleware
 
             $dispatchItem = MaterialDispatchItem::with('material')->lockForUpdate()->findOrFail($validated['material_dispatch_item_id']);
 
-            $latestConsumption = MaterialConsumption::where( 'material_dispatch_item_id', $dispatchItem->id)->latest('id')->first();
+            $latestConsumption = MaterialConsumption::where('material_dispatch_item_id', $dispatchItem->id)->latest('id')->first();
 
             $remainingQty = $latestConsumption ? $latestConsumption->remaining_qty : $dispatchItem->received_qty;
 
@@ -124,7 +125,7 @@ class WastageController extends Controller implements HasMiddleware
 
             $wastageNo = 'WS-' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
 
-            Wastage::create([
+           $wastage = Wastage::create([
                 'wastage_no' => $wastageNo,
                 'material_id' => $dispatchItem->material_id,
                 'quantity' => $validated['quantity'],
@@ -135,6 +136,17 @@ class WastageController extends Controller implements HasMiddleware
                 'reference_type' => MaterialDispatchItem::class,
                 'reference_id' => $dispatchItem->id,
             ]);
+
+            StockLedger::add(
+                $dispatchItem->material_id,
+                'wastage',
+                Wastage::class,
+                $wastage->id,
+                0,
+                $validated['quantity'],
+                $dispatchItem->material->current_stock,
+                'Material Wastage'
+            );
 
         });
 
@@ -149,7 +161,7 @@ class WastageController extends Controller implements HasMiddleware
      */
     public function show(Wastage $wastage)
     {
-        $wastage->load(['material','recordedBy']);
+        $wastage->load(['material', 'recordedBy']);
 
         return view('stocks.wastages.view', compact('wastage'));
     }

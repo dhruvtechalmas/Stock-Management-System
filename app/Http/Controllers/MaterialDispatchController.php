@@ -11,6 +11,7 @@ use App\Models\Material;
 use App\Models\MaterialDispatch;
 use App\Models\MaterialDispatchItem;
 use App\Models\MaterialRequest;
+use App\Models\StockLedger;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
@@ -191,6 +192,17 @@ class MaterialDispatchController extends Controller implements HasMiddleware
                     $dispatchQty
                 );
 
+                StockLedger::add(
+                    $material->id,
+                    'dispatch',
+                    MaterialDispatch::class,
+                    $dispatch->id,
+                    0,
+                    $dispatchQty,
+                    $material->fresh()->current_stock,
+                    'Material Dispatched'
+                );
+
                 /*
                 |--------------------------------------------------------------------------
                 | Create Dispatch Item
@@ -287,7 +299,7 @@ class MaterialDispatchController extends Controller implements HasMiddleware
 
         return redirect()->route('material-dispatch.index')->with('success', 'Material request rejected successfully.');
     }
- 
+
     //   Dispatch Materials
     //   Handles both:
     //   1. Partial Dispatch
@@ -318,7 +330,7 @@ class MaterialDispatchController extends Controller implements HasMiddleware
                 'alert-type' => 'success',
             ]);
     }
-   
+
     //   Receive dispatched materials   
     public function receive(ReceiveMaterialRequest $request)
     {
@@ -385,6 +397,18 @@ class MaterialDispatchController extends Controller implements HasMiddleware
                     'missing_qty' => $missingQty,
 
                 ]);
+
+
+                StockLedger::add(
+                    $dispatchItem->material_id,
+                    'receive',
+                    MaterialDispatch::class,
+                    $dispatch->id,
+                    $receivedQty,
+                    0,
+                    $dispatchItem->material->current_stock,
+                    'Material Received'
+                );
             }
 
             $dispatch->load('items');
@@ -418,7 +442,7 @@ class MaterialDispatchController extends Controller implements HasMiddleware
             ]);
     }
 
-   
+
     //   Resolve Material Discrepancy
     public function resolve(ResolveDiscrepancyRequest $request)
     {

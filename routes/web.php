@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CurrentStockReportController;
 use App\Http\Controllers\DashboardConroller;
 use App\Http\Controllers\MaterialCategoryController;
 use App\Http\Controllers\MaterialConsumptionController;
@@ -107,6 +108,8 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::get('/stock-ledger', [StockLedgerController::class, 'index'])->name('stock-ledger.index');
+
+    Route::get('/current-stock',[CurrentStockReportController::class, 'index'])->name('current-stock-report.index');
 
 });
 

@@ -7,6 +7,7 @@ use App\Http\Requests\UpdatePurchaseRequest;
 use App\Models\Material;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
+use App\Models\StockLedger;
 use App\Models\Supplier;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -61,7 +62,7 @@ class PurchaseController extends Controller implements HasMiddleware
 
         $materials = Material::where('status', 'Active')->get();
 
-        $purchaseNo = 'PUR-'.str_pad((Purchase::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT);
+        $purchaseNo = 'PUR-' . str_pad((Purchase::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT);
 
         return view('stocks.purchase.create', compact(
             'suppliers',
@@ -78,7 +79,7 @@ class PurchaseController extends Controller implements HasMiddleware
         DB::transaction(function () use ($request) {
 
             $purchase = Purchase::create([
-                'purchase_no' => 'PUR-'.str_pad(Purchase::max('id') + 1, 6, '0', STR_PAD_LEFT),
+                'purchase_no' => 'PUR-' . str_pad(Purchase::max('id') + 1, 6, '0', STR_PAD_LEFT),
                 'supplier_id' => $request->supplier_id,
                 'invoice_no' => $request->invoice_no,
                 'purchase_date' => $request->purchase_date,
@@ -220,6 +221,17 @@ class PurchaseController extends Controller implements HasMiddleware
                 $material = Material::find($item['material_id']);
 
                 $material->increment('current_stock', $item['quantity']);
+
+                StockLedger::add(
+                    $material->id,
+                    'purchase',
+                    Purchase::class,
+                    $purchase->id,
+                    $item['quantity'],
+                    0,
+                    $material->fresh()->current_stock,
+                    'Purchase Entry'
+                );
 
                 $grandTotal += $lineTotal;
             }

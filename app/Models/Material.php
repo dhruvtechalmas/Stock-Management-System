@@ -17,18 +17,30 @@ class Material extends Model
         'status',
     ];
 
-    public function category()
-    {
-        return $this->belongsTo(MaterialCategory::class, 'material_category_id');
-    }
-
     public function purchaseItems()
     {
         return $this->hasMany(PurchaseItem::class);
+    }
+
+    public function dispatchItems()
+    {
+        return $this->hasMany(MaterialDispatchItem::class);
+    }
+
+    public function consumptions()
+    {
+        return $this->hasMany(MaterialConsumption::class);
     }
 
     public function wastages()
     {
         return $this->hasMany(Wastage::class);
     }
+
+    public function category()
+    {
+        return $this->belongsTo(MaterialCategory::class, 'material_category_id');
+    }
+
+
 }

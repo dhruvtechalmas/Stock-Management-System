@@ -78,6 +78,47 @@
             allowInput: false
         });
 
+        flatpickr("#from_date", {
+            altInput: true,
+            altFormat: "d M Y",
+            dateFormat: "Y-m-d",
+            allowInput: true
+        });
+
+        flatpickr("#to_date", {
+            altInput: true,
+            altFormat: "d M Y",
+            dateFormat: "Y-m-d",
+            allowInput: true
+        });
+
+    });
+</script>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        if (document.querySelector('#material_id')) {
+            new TomSelect('#material_id', {
+                create: false,
+                allowEmptyOption: true,
+                placeholder: 'Select Material',
+                maxOptions: 500,
+                searchField: ['text'],
+            });
+        }
+
+        if (document.querySelector('#category_id')) {
+            new TomSelect('#category_id', {
+                create: false,
+                allowEmptyOption: true,
+                placeholder: 'Select Category',
+                maxOptions: 500,
+                searchField: ['text'],
+            });
+        }
+
     });
 </script>
 

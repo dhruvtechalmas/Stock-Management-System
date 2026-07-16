@@ -41,7 +41,7 @@
 
                         <div class="row">
 
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-2 mb-3">
 
                                 <label class="form-label">
                                     Material
@@ -67,7 +67,7 @@
 
                             </div>
 
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-2 mb-3">
 
                                 <label class="form-label">
                                     Transaction
@@ -79,18 +79,18 @@
                                         All Transactions
                                     </option>
 
-                                    <option value="purchase">Purchase</option>
-                                    <option value="dispatch">Dispatch</option>
-                                    <option value="receive">Receive</option>
-                                    <option value="consumption">Consumption</option>
-                                    <option value="wastage">Wastage</option>
-                                    <option value="adjustment">Adjustment</option>
+                                    <option value="purchase" {{ request('transaction_type') == 'purchase' ? 'selected' : '' }}>Purchase</option>
+                                    <option value="dispatch" {{ request('transaction_type') == 'dispatch' ? 'selected' : '' }}>Dispatch</option>
+                                    <option value="receive" {{ request('transaction_type') == 'receive' ? 'selected' : '' }}>Receive</option>
+                                    <option value="consumption" {{ request('transaction_type') == 'consumption' ? 'selected' : '' }}>Consumption</option>
+                                    <option value="wastage" {{ request('transaction_type') == 'wastage' ? 'selected' : '' }}>Wastage</option>
+                                    <option value="adjustment" {{ request('transaction_type') == 'adjustment' ? 'selected' : '' }}>Adjustment</option>
 
                                 </select>
 
                             </div>
 
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-2 mb-3">
 
                                 <label class="form-label">
                                     User
@@ -120,7 +120,7 @@
                                     From Date
                                 </label>
 
-                                <input type="date" name="from_date" value="{{ request('from_date') }}" class="form-control">
+                                <input type="text" id="from_date" name="from_date" value="{{ request('from_date') }}" class="form-control" placeholder="Select From Date">
 
                             </div>
 
@@ -130,20 +130,20 @@
                                     To Date
                                 </label>
 
-                                <input type="date" name="to_date" value="{{ request('to_date') }}" class="form-control">
+                                <input type="text" id="to_date" name="to_date" value="{{ request('to_date') }}" class="form-control" placeholder="Select To Date">
 
                             </div>
 
                             <div class="col-md-2 d-flex align-items-end mb-3">
 
-                                <button type="submit" class="btn btn-primary me-2">
+                                <button type="submit" class="btn btn-primary me-2 w-100">
 
                                     <i class="bi bi-search"></i>
                                     Filter
 
                                 </button>
 
-                                <a href="{{ route('stock-ledger.index') }}" class="btn btn-outline-secondary">
+                                <a href="{{ route('stock-ledger.index') }}" class="btn btn-outline-secondary w-100">
 
                                     Reset
 
@@ -162,7 +162,7 @@
             {{-- Ledger Table --}}
             <section class="panel">
 
-                <div class="panel-header">
+                {{-- <div class="panel-header">
 
                     <div class="d-flex align-items-center gap-3">
 
@@ -171,7 +171,7 @@
 
                     </div>
 
-                </div>
+                </div> --}}
 
                 <div class="table-responsive">
 
@@ -188,6 +188,7 @@
                                 <th>Qty In</th>
                                 <th>Qty Out</th>
                                 <th>Balance</th>
+                                <th>By</th>
                                 <th>Remarks</th>
 
                             </tr>
@@ -214,7 +215,7 @@
 
                                     <td>
 
-                                        {{ $ledger->material->name }}
+                                        {{ $ledger->material?->material_name ?? 'N/A' }}
 
                                     </td>
 
@@ -259,6 +260,12 @@
 
                                     <td>
 
+                                        {{ $ledger->createdBy?->name ?? 'System' }}
+
+                                    </td>
+
+                                    <td>
+
                                         {{ $ledger->remarks ?? '-' }}
 
                                     </td>
@@ -269,7 +276,7 @@
 
                                 <tr>
 
-                                    <td colspan="8" class="text-center text-muted py-5">
+                                    <td colspan="9" class="text-center text-muted py-5">
 
                                         No Stock Ledger Records Found.
 

@@ -6,6 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class StockLedger extends Model
 {
+    protected $fillable = [
+        'material_id',
+        'transaction_type',
+        'reference_type',
+        'reference_id',
+        'qty_in',
+        'qty_out',
+        'balance_after',
+        'transaction_date',
+        'remarks',
+        'created_by',
+    ];
+
     public static function add(
         $materialId,
         $transactionType,
