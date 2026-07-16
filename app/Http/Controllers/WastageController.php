@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreWastageRequest;
 use App\Models\Material;
+use App\Models\MaterialConsumption;
 use App\Models\MaterialDispatchItem;
 use App\Models\Wastage;
 use Illuminate\Http\Request;
@@ -32,15 +33,37 @@ class WastageController extends Controller implements HasMiddleware
      */
     public function index()
     {
-        $wastages = Wastage::with(['material', 'recordedBy'])->latest()->paginate(10);
+        $wastages = Wastage::with([
+            'material',
+            'recordedBy'
+        ])->latest()->paginate(10);
 
-        $dispatchItems = MaterialDispatchItem::with(['material', 'dispatch'])
-            ->where('received_qty', '>', 0)
+        $dispatchItems = MaterialDispatchItem::with([
+            'material',
+            'dispatch',
+            'consumptions' => function ($query) {
+                $query->latest('id');
+            }
+        ])
             ->whereHas('dispatch', function ($query) {
                 $query->where('status', 'completed');
-            })->latest()->get();
+            })
+            ->get()
+            ->map(function ($item) {
 
-        return view('stocks.wastages.list', compact('wastages', 'dispatchItems'));
+                $latestConsumption = $item->consumptions->first();
+
+                $item->remaining_qty = $latestConsumption
+                    ? $latestConsumption->remaining_qty
+                    : $item->received_qty;
+
+                return $item;
+            });
+
+        return view('stocks.wastages.list', compact(
+            'wastages',
+            'dispatchItems'
+        ));
     }
 
     /**
@@ -48,11 +71,24 @@ class WastageController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        $dispatchItems = MaterialDispatchItem::with('material')
-            ->where('received_qty', '>', 0)
+        $dispatchItems = MaterialDispatchItem::with([
+            'material',
+            'dispatch',
+        ])
+            ->withSum('consumptions', 'consumed_qty')
+            ->withSum('consumptions', 'wastage_qty')
             ->whereHas('dispatch', function ($query) {
                 $query->where('status', 'completed');
-            })->get();
+            })
+            ->get()
+            ->map(function ($item) {
+
+                $item->remaining_qty =
+                    $item->received_qty
+                    - ($item->consumptions_sum_consumed_qty ?? 0);
+
+                return $item;
+            });
 
         return view('stocks.wastages.create', compact('dispatchItems'));
     }
@@ -66,17 +102,17 @@ class WastageController extends Controller implements HasMiddleware
 
         DB::transaction(function () use ($validated) {
 
-            $dispatchItem = MaterialDispatchItem::with('material')
-                ->lockForUpdate()
-                ->findOrFail($validated['material_dispatch_item_id']);
+            $dispatchItem = MaterialDispatchItem::with('material')->lockForUpdate()->findOrFail($validated['material_dispatch_item_id']);
 
-            // Validate received quantity
-            if ((float) $validated['quantity'] > (float) $dispatchItem->received_qty) {
+            $latestConsumption = MaterialConsumption::where( 'material_dispatch_item_id', $dispatchItem->id)->latest('id')->first();
+
+            $remainingQty = $latestConsumption ? $latestConsumption->remaining_qty : $dispatchItem->received_qty;
+
+            if ((float) $validated['quantity'] > (float) $remainingQty) {
 
                 throw ValidationException::withMessages([
-                    'quantity' => 'Wastage quantity cannot exceed received quantity (' .
-                        number_format($dispatchItem->received_qty, 3) . ' ' .
-                        $dispatchItem->material->unit . ').',
+                    'quantity' => 'Wastage quantity cannot exceed remaining quantity 
+                    (' . number_format($remainingQty, 3) . ' ' . $dispatchItem->material->unit . ').',
                 ]);
             }
 
@@ -113,10 +149,7 @@ class WastageController extends Controller implements HasMiddleware
      */
     public function show(Wastage $wastage)
     {
-        $wastage->load([
-            'material',
-            'recordedBy'
-        ]);
+        $wastage->load(['material','recordedBy']);
 
         return view('stocks.wastages.view', compact('wastage'));
     }
@@ -131,8 +164,7 @@ class WastageController extends Controller implements HasMiddleware
 
             if ($wastage->reference_id) {
 
-                $dispatchItem = MaterialDispatchItem::lockForUpdate()
-                    ->find($wastage->reference_id);
+                $dispatchItem = MaterialDispatchItem::lockForUpdate()->find($wastage->reference_id);
 
                 if ($dispatchItem) {
                     $dispatchItem->increment('received_qty', $wastage->quantity);

@@ -20,16 +20,19 @@
 
                     @foreach($dispatchItems as $item)
 
-                        <option value="{{ $item->id }}" data-material-id="{{ $item->material_id }}"
-                            data-material-name="{{ $item->material->material_name }}" data-stock="{{ $item->received_qty }}"
-                            data-unit="{{ $item->material->unit }}" {{ old('material_dispatch_item_id') == $item->id ? 'selected' : '' }}>
+                        @if($item->remaining_qty > 0)
 
-                            {{ $item->material->material_name }}
-                            (Received :
-                            {{ number_format($item->received_qty, 3) }}
-                            {{ $item->material->unit }})
+                            <option value="{{ $item->id }}" data-stock="{{ $item->remaining_qty }}"
+                                data-unit="{{ $item->material->unit }}" data-material="{{ $item->material_id }}">
 
-                        </option>
+                                {{ $item->material->material_name }}
+                                (Remaining :
+                                {{ number_format($item->remaining_qty, 3) }}
+                                {{ $item->material->unit }})
+
+                            </option>
+
+                        @endif
 
                     @endforeach
 
@@ -45,14 +48,20 @@
 
             <input type="hidden" name="material_id" id="material_id">
 
+            <input type="hidden" name="material_id" id="material_id">
+
             {{-- Available Stock --}}
             <div class="col-md-6 mb-3">
 
                 <label class="form-label">
-                    Received Quantity
+                    Remaining Quantity
                 </label>
 
                 <input type="text" id="available_stock" class="form-control" readonly>
+
+                <small class="text-muted">
+                    Available quantity for wastage.
+                </small>
 
             </div>
 
@@ -154,29 +163,21 @@
     document.addEventListener('DOMContentLoaded', function () {
 
         const materialSelect = document.getElementById('material_dispatch_item_id');
-
         const materialId = document.getElementById('material_id');
-
         const stockInput = document.getElementById('available_stock');
-
         const unitInput = document.getElementById('unit');
-
         const quantityInput = document.getElementById('quantity');
 
         function updateMaterialDetails() {
 
             const option = materialSelect.options[materialSelect.selectedIndex];
 
-            if (option.value === '') {
+            if (!option.value) {
 
                 materialId.value = '';
-
                 stockInput.value = '';
-
                 unitInput.value = '';
-
                 quantityInput.value = '';
-
                 quantityInput.removeAttribute('max');
 
                 return;
@@ -200,9 +201,7 @@
             if (!isNaN(max) && parseFloat(this.value) > max) {
 
                 this.value = max;
-
             }
-
         });
 
         updateMaterialDetails();

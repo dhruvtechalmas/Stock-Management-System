@@ -10,6 +10,7 @@ class MaterialConsumption extends Model
         'material_dispatch_item_id',
         'material_id',
         'consumed_qty',
+        'remaining_qty',
         'consumption_date',
         'recorded_by',
     ];
@@ -17,6 +18,7 @@ class MaterialConsumption extends Model
     protected $casts = [
         'consumption_date' => 'date',
         'consumed_qty' => 'decimal:3',
+        'remaining_qty' => 'decimal:3',
     ];
 
     public function dispatchItem()

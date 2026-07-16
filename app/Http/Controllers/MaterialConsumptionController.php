@@ -23,12 +23,26 @@ class MaterialConsumptionController extends Controller implements HasMiddleware
 
     public function index()
     {
-        $dispatchItems = MaterialDispatchItem::with(
+        $dispatchItems = MaterialDispatchItem::with([
             'material',
             'dispatch',
-        )->withSum('consumptions', 'consumed_qty')->where('received_qty', '>', 0)->whereHas('dispatch', function ($query) {
-            $query->where('status', 'completed');
-        })->latest()->get();
+        ])
+            ->withSum('consumptions', 'consumed_qty')
+            ->where('received_qty', '>', 0)
+            ->whereHas('dispatch', function ($query) {
+                $query->where('status', 'completed');
+            })
+            ->latest()
+            ->get()
+            ->map(function ($item) {
+
+                $item->remaining_qty =
+                    (float) $item->received_qty
+                    - (float) ($item->consumptions_sum_consumed_qty ?? 0);
+
+                return $item;
+
+            });
 
 
         $consumptions = MaterialConsumption::with(['material', 'dispatchItem.dispatch', 'recordedBy',])->latest('consumption_date')->get();
@@ -65,14 +79,16 @@ class MaterialConsumptionController extends Controller implements HasMiddleware
             }
 
 
-            // Only actually received quantity
             $receivedQty = (float) $dispatchItem->received_qty;
 
-            // Already consumed quantity
-            $alreadyConsumed = (float) MaterialConsumption::where('material_dispatch_item_id', $dispatchItem->id)->sum('consumed_qty');
+            $alreadyConsumed = (float) MaterialConsumption::where(
+                'material_dispatch_item_id',
+                $dispatchItem->id
+            )->sum('consumed_qty');
 
-            // Available quantity
             $remainingQty = $receivedQty - $alreadyConsumed;
+
+            $newRemainingQty = $remainingQty - (float) $validated['consumed_qty'];
 
 
             if ($remainingQty <= 0) {
@@ -99,6 +115,8 @@ class MaterialConsumptionController extends Controller implements HasMiddleware
                 'material_id' => $dispatchItem->material_id,
 
                 'consumed_qty' => $validated['consumed_qty'],
+
+                'remaining_qty' => $newRemainingQty,
 
                 'consumption_date' => $validated['consumption_date'],
 

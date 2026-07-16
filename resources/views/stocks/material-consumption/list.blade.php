@@ -84,22 +84,12 @@
                             @forelse($dispatchItems as $item)
 
                                 @php
-                                    // Total quantity already consumed
-                                    $consumedQty = (float) (
-                                        $item->consumptions_sum_consumed_qty ?? 0
-                                    );
+    $consumedQty = (float) ($item->consumptions_sum_consumed_qty ?? 0);
 
-                                    // Only actually received quantity can be consumed
-                                    $receivedQty = (float) (
-                                        $item->received_qty ?? 0
-                                    );
+    $receivedQty = (float) ($item->received_qty ?? 0);
 
-                                    // Quantity still available
-                                    $remainingQty = max(
-                                        0,
-                                        $receivedQty - $consumedQty
-                                    );
-                                @endphp
+    $remainingQty = (float) ($item->remaining_qty ?? 0);
+@endphp
 
                                 <tr>
 
@@ -161,6 +151,8 @@
                                             <span class="badge bg-success">
 
                                                 {{ number_format($remainingQty, 3) }}
+
+                                                {{ $item->material->unit }}
 
                                             </span>
 
@@ -544,7 +536,7 @@
                                     <div class="col-md-4">
 
                                         <label class="form-label">
-                                            Available Quantity
+                                            Remaining Quantity  
                                         </label>
 
                                         <input type="text" class="form-control" value="{{ number_format($remainingQty, 3) }}"
@@ -570,8 +562,7 @@
                                             step="0.001"
                                             min="0.001"
                                             max="{{ $remainingQty }}"
-                                            placeholder="Enter Consumed Quantity"
-                                            required>
+                                            placeholder="Enter Consumed Quantity">
 
                                         @error('consumed_qty')
                                             @if(old('material_dispatch_item_id') == $item->id)
@@ -610,14 +601,14 @@
                                                             )
                                                                 is-invalid
                                                         @endif" value="{{
-                        old('material_dispatch_item_id')
-                        == $item->id
-                        ? old(
-                            'consumption_date',
-                            now()->format('Y-m-d')
-                        )
-                        : now()->format('Y-m-d')
-                                                    }}" max="{{ now()->format('Y-m-d') }}" required>
+                                                            old('material_dispatch_item_id')
+                                                            == $item->id
+                                                            ? old(
+                                                                'consumption_date',
+                                                                now()->format('Y-m-d')
+                                                            )
+                                                            : now()->format('Y-m-d')
+                                                    }}" max="{{ now()->format('Y-m-d') }}" >
 
 
                                         @if(

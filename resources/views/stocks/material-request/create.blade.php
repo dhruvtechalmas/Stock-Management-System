@@ -127,6 +127,22 @@
             <i class="bi bi-plus-circle"></i> Add Item
         </button>
 
+        <div id="materialOptionsTemplate" class="d-none">
+
+            @foreach($materials as $material)
+
+                <option
+                    value="{{ $material->id }}"
+                    data-unit="{{ $material->unit }}">
+
+                    {{ $material->material_name }}
+
+                </option>
+
+            @endforeach
+
+        </div>
+
         {{-- Hidden template of material <option>s, read by the shared "Add Item" JS
             for every form on this page instead of re-rendering per modal. --}}
 
@@ -162,90 +178,123 @@
     </form>
 </div>
 
-{{-- Include this ONCE in list.blade.php, never inside create.blade.php or edit.blade.php.
-     Because it uses event delegation + data attributes instead of hardcoded
-     per-purchase IDs, it works correctly no matter how many edit modals exist
-     on the page — nothing gets redefined or overwritten. --}}
-<script>
-    function updateUnit(select) {
-        if (!select.value) return;
-        const row = select.closest('tr');
-        const unit = select.options[select.selectedIndex]?.dataset.unit || '';
-        row.querySelector('.unit').value = unit;
-    }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.material-select').forEach(updateUnit);
-    });
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    updateAllUnits();
+
+    document.querySelector('.add-row-btn').addEventListener('click', addRow);
 
     document.addEventListener('change', function (e) {
-        if (e.target.classList.contains('material-select')) {
-            updateUnit(e.target);
-        }
-    });
 
+        if (e.target.classList.contains('material-select')) {
+
+            updateUnit(e.target);
+
+        }
+
+    });
 
     document.addEventListener('click', function (e) {
 
-        // Remove a row
         if (e.target.closest('.remove-row')) {
-            const tbody = e.target.closest('[data-materialRequest-body]');
-            const rows = tbody.querySelectorAll('tr');
-            if (rows.length > 1) {
+
+            const tbody = document.getElementById('materialRequestItemsBody');
+
+            if (tbody.rows.length > 1) {
+
                 e.target.closest('tr').remove();
+
             }
+
         }
 
-
-        if (e.target.closest('.add-row-btn')) {
-            const btn = e.target.closest('.add-row-btn');
-            const tbody = document.getElementById(btn.dataset.targetBody);
-            const rowCount = tbody.querySelectorAll('tr').length;
-            const materialOptionsHtml = document.getElementById('materialOptionsTemplate').innerHTML;
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>
-                    <select
-                        name="items[${rowCount}][material_id]"
-                        class="form-select material-select searchable-material">
-
-                        <option value="">Select Material</option>
-                        ${materialOptionsHtml}
-                    </select>
-                </td>
-
-                <td>
-                    <input type="text" class="form-control unit" readonly>
-                </td>
-
-                <td>
-                    <input
-                        type="number"
-                        name="items[${rowCount}][requested_qty]"
-                        class="form-control quantity"
-                        min="0.001"
-                        step="0.001">
-                </td>
-
-                <td>
-                    <button type="button" class="btn btn-outline-danger remove-row">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
-            `;
-
-            tbody.appendChild(row);
-
-            $(row).find('.searchable-material').select2({
-                placeholder: 'Search Material',
-                width: '100%'
-            });
-        }
-        
     });
 
-    </script>
+});
+
+function updateUnit(select)
+{
+    const row = select.closest('tr');
+
+    const unitInput = row.querySelector('.unit');
+
+    const option = select.options[select.selectedIndex];
+
+    unitInput.value = option.dataset.unit ?? '';
+}
+
+function updateAllUnits()
+{
+    document.querySelectorAll('.material-select').forEach(function(select){
+
+        updateUnit(select);
+
+    });
+}
+
+function addRow()
+{
+    const tbody = document.getElementById('materialRequestItemsBody');
+
+    const index = tbody.rows.length;
+
+    const options = document.getElementById('materialOptionsTemplate').innerHTML;
+
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+        <td>
+
+            <select
+                name="items[${index}][material_id]"
+                class="form-select material-select">
+
+                <option value="">Select Material</option>
+
+                ${options}
+
+            </select>
+
+        </td>
+
+        <td>
+
+            <input
+                type="text"
+                class="form-control unit"
+                readonly>
+
+        </td>
+
+        <td>
+
+            <input
+                type="number"
+                name="items[${index}][requested_qty]"
+                class="form-control"
+                min="0.001"
+                step="0.001">
+
+        </td>
+
+        <td>
+
+            <button
+                type="button"
+                class="btn btn-outline-danger remove-row">
+
+                <i class="bi bi-trash"></i>
+
+            </button>
+
+        </td>
+    `;
+
+    tbody.appendChild(tr);
+}
+</script>
 
     <script> 
 

@@ -12,7 +12,7 @@
             @endforeach
     </div>
 
-    
+
     {{-- Add Purchase Modal --}}
     <div class="modal fade" id="materialRequestModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
@@ -27,7 +27,7 @@
             </div>
         </div>
     </div>
-  
+
 
     <main class="dashboard-content">
         <div class="container-fluid px-3 px-lg-4 py-4">
@@ -42,17 +42,18 @@
                 </div>
 
                 @hasrole('Kitchen Staff')
-                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#materialRequestModal">
+                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#materialRequestModal">
                     <i class="bi bi-plus-circle"></i> Add Material Request
                 </button>
-                  @endhasrole
+                @endhasrole
             </div>
 
             <section class="panel">
                 <div class="panel-header">
                     <div class="d-flex align-items-center gap-3">
-                        <input class="form-control form-control-sm table-search" type="search" placeholder="Search Material Request"
-                            data-table-search="materialRequestTable">
+                        <input class="form-control form-control-sm table-search" type="search"
+                            placeholder="Search Material Request" data-table-search="materialRequestTable">
                     </div>
                     {{-- <a href="#" class="btn btn-outline-secondary btn-sm">
                         <i class="bi bi-download"></i> Export PDF
@@ -81,23 +82,25 @@
                                     @forelse($materialRequests as $materialRequest)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td><strong>{{ $materialRequest->request_no }}</strong></td>                                           
+                                            <td><strong>{{ $materialRequest->request_no }}</strong></td>
                                             <td>
                                                 @foreach($materialRequest->items as $item)
                                                     {{ $item->material->material_name }}<br>
                                                 @endforeach
-                                            </td>                                           
+                                            </td>
                                             <td>{{ $materialRequest->user->name ?? '-' }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($materialRequest->request_date)->format('d M Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($materialRequest->request_date)->format('d M Y') }}
+                                            </td>
                                             <td>
                                                 {{ number_format($materialRequest->items->sum('requested_qty'), 2) }}
                                             </td>
-                                             <td>
-                                                <span class="badge {{ $materialRequest->status == 'pending' ? 'bg-success' : ($materialRequest->status == 'approved' ? 'bg-primary' : 'bg-danger') }}">
+                                            <td>
+                                                <span
+                                                    class="badge {{ $materialRequest->status == 'pending' ? 'bg-success' : ($materialRequest->status == 'approved' ? 'bg-primary' : 'bg-danger') }}">
                                                     {{ $materialRequest->status }}
                                                 </span>
                                             </td>
-                   
+
                                             <td style="white-space: nowrap;">
                                                 <i class="bi bi-calendar3 text-primary me-2"></i>
                                                 {{ $materialRequest->created_at->format('M d, Y') }}
@@ -112,8 +115,8 @@
                                                 @endhasrole
 
                                                 @hasrole('Kitchen Staff')
-                                                <form action="{{ route('material-requests.destroy', $materialRequest->id) }}" method="POST"
-                                                    class="d-inline delete-materialRequest-form">
+                                                <form action="{{ route('material-requests.destroy', $materialRequest->id) }}"
+                                                    method="POST" class="d-inline delete-materialRequest-form">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-outline-danger btn-sm">
@@ -152,93 +155,88 @@
         @endforeach
 
 
-        
-            {{-- Open Create Modal --}}
-            @if($errors->create->any())
+
+        {{-- Open Create Modal --}}
+        @if($errors->create->any())
 
             <script>
 
-            document.addEventListener('DOMContentLoaded',function(){
+                document.addEventListener('DOMContentLoaded', function () {
 
-                new bootstrap.Modal(
-                    document.getElementById('materialRequestModal')
-                ).show();
+                    new bootstrap.Modal(
+                        document.getElementById('materialRequestModal')
+                    ).show();
 
-            });
+                });
 
             </script>
 
-            @endif
+        @endif
 
 
-            {{-- Open Edit Modal --}}
-            @if(session()->has('edit_material_request_id') && $errors->edit->any())
+        {{-- Open Edit Modal --}}
+        @if(session()->has('edit_material_request_id') && $errors->edit->any())
 
             <script>
 
-            document.addEventListener('DOMContentLoaded',function(){
+                document.addEventListener('DOMContentLoaded', function () {
 
-                new bootstrap.Modal(
+                    new bootstrap.Modal(
 
-                    document.getElementById(
-                        'editMaterialRequestModal{{ session("edit_material_request_id") }}'
-                    )
+                        document.getElementById(
+                            'editMaterialRequestModal{{ session("edit_material_request_id") }}'
+                        )
 
-                ).show();
+                    ).show();
 
-            });
+                });
 
             </script>
 
-            @endif
-
-        
-            <script>
-
-document.addEventListener('DOMContentLoaded',function(){
-
-    document.querySelectorAll('.modal').forEach(function(modal){
-
-        modal.addEventListener('hidden.bs.modal',function(){
-
-            if(
-                window.location.search ||
-                document.querySelector('.invalid-feedback')
-            ){
-                window.location.href="{{ route('material-requests.index') }}";
-            }
-
-        });
-
-    });
-
-});
-
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    document.querySelectorAll('.btn-close').forEach(function (closeButton) {
-
-        closeButton.addEventListener('click', function () {
-            window.location.href = "{{ route('material-requests.index') }}";
-        });
-
-    });
-
-});
-
-</script>
-{{-- 
-        @if ($errors->any())
+        @endif
 
 
         <script>
 
             document.addEventListener('DOMContentLoaded', function () {
 
-                document.querySelectorAll('[id^="cancelMaterialRequestBtn"]').forEach(function(btn){
+                document.querySelectorAll('.modal').forEach(function (modal) {
 
-                    btn.addEventListener('click', function(){
+                    modal.addEventListener('hidden.bs.modal', function () {
+
+                        if (
+                            window.location.search ||
+                            document.querySelector('.invalid-feedback')
+                        ) {
+                            window.location.href = "{{ route('material-requests.index') }}";
+                        }
+
+                    });
+
+                });
+
+            });
+
+
+            document.addEventListener('DOMContentLoaded', function () {
+
+                document.querySelectorAll('.btn-close').forEach(function (closeButton) {
+
+                    closeButton.addEventListener('click', function () {
+                        window.location.href = "{{ route('material-requests.index') }}";
+                    });
+
+                });
+
+            });
+
+
+
+            document.addEventListener('DOMContentLoaded', function () {
+
+                document.querySelectorAll('[id="cancelMaterialRequestBtn"]').forEach(function (btn) {
+
+                    btn.addEventListener('click', function () {
 
                         window.location.href = "{{ route('material-requests.index') }}";
 
@@ -247,9 +245,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
             });
+        </script>
 
-            </script>
-        @endif --}}
 
-        
 @endsection

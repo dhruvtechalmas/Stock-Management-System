@@ -141,20 +141,20 @@
                                         @endcan
 
                                         @role('Kitchen Staff')
-                                            <form action="{{ route('wastages.destroy', $wastage->id) }}" method="POST"
-                                                class="d-inline delete-form">
+                                        <form action="{{ route('wastages.destroy', $wastage->id) }}" method="POST"
+                                            class="d-inline delete-form">
 
-                                                @csrf
-                                                @method('DELETE')
+                                            @csrf
+                                            @method('DELETE')
 
-                                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
 
-                                                    <i class="bi bi-trash"></i>
+                                                <i class="bi bi-trash"></i>
 
-                                                </button>
+                                            </button>
 
-                                            </form>
-                                      
+                                        </form>
+
                                         @endrole
 
                                     </td>
@@ -225,33 +225,39 @@
         </script>
     @endif
 
-    {{-- when cancle form then refresh --}}
-    @if ($errors->any())
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-
-                const modal = new bootstrap.Modal(document.getElementById('wastageModal'));
-                modal.show();
-
-                document.getElementById('cancelWastageBtn').addEventListener('click', function () {
-                    window.location.href = "{{ route('wastages.index') }}";
-                });
-
-            });
-        </script>
-    @endif
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            document.querySelectorAll('.btn-close').forEach(function (closeButton) {
+            const wastageIndexUrl = "{{ route('wastages.index') }}";
 
-                closeButton.addEventListener('click', function () {
-                    window.location.href = "{{ route('wastages.index') }}";
+            document.querySelectorAll('#cancelWastageBtn, #wastageModal .btn-close').forEach(function (button) {
+
+                button.addEventListener('click', function () {
+
+                    window.location.href = wastageIndexUrl;
+
                 });
 
             });
 
         });
     </script>
+
+    {{-- <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const modal = document.getElementById('wastageModal');
+
+            if (modal) {
+
+                modal.addEventListener('hidden.bs.modal', function () {
+
+                    window.location.href = "{{ route('wastages.index') }}";
+
+                });
+
+            }
+
+        });
+    </script> --}}
 @endsection

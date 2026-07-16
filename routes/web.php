@@ -8,6 +8,7 @@ use App\Http\Controllers\MaterialDispatchController;
 use App\Http\Controllers\MaterialRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\StockLedgerController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WastageController;
@@ -98,6 +99,14 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::resource('wastages', WastageController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reports
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/stock-ledger', [StockLedgerController::class, 'index'])->name('stock-ledger.index');
 
 });
 
