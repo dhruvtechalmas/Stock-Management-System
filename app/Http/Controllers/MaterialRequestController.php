@@ -32,10 +32,20 @@ class MaterialRequestController extends Controller implements HasMiddleware
      */
     public function index()
     {
-        $materialRequests = MaterialRequest::with([
+        $query = MaterialRequest::with([
             'user',
             'items.material',
-        ])
+        ]);
+
+        // Super Admin & Admin can see all requests
+        if (! auth()->user()->hasAnyRole(['Super Admin', 'Admin'])) {
+
+            // Other users only see their own requests
+            $query->where('requested_by', auth()->id());
+
+        }
+
+        $materialRequests = $query
             ->latest()
             ->paginate(10);
 
@@ -54,7 +64,7 @@ class MaterialRequestController extends Controller implements HasMiddleware
     {
         $materials = Material::orderBy('material_name')->get();
 
-        $requestNo = 'MR-' . str_pad((MaterialRequest::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT);
+        $requestNo = 'MR-'.str_pad((MaterialRequest::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT);
 
         return view('stocks.material-request.create', compact('materials', 'requestNo'));
     }
@@ -67,7 +77,7 @@ class MaterialRequestController extends Controller implements HasMiddleware
         DB::transaction(function () use ($request) {
 
             $materialRequest = MaterialRequest::create([
-                'request_no' => 'MR-' . str_pad(
+                'request_no' => 'MR-'.str_pad(
                     (MaterialRequest::max('id') ?? 0) + 1,
                     6,
                     '0',
@@ -94,7 +104,6 @@ class MaterialRequestController extends Controller implements HasMiddleware
                 'alert-type' => 'success',
             ]);
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -192,10 +201,11 @@ class MaterialRequestController extends Controller implements HasMiddleware
 
     public function show(MaterialRequest $materialRequest)
     {
-        $materialRequest->load(['user', 'items.material', 'approvedBy',]);
+        $materialRequest->load(['user', 'items.material', 'approvedBy']);
 
         return view('stocks.material-request.view', compact('materialRequest'));
     }
+
     /**
      * Approve Material Request
      */
@@ -221,7 +231,6 @@ class MaterialRequestController extends Controller implements HasMiddleware
             'alert-type' => 'success',
         ]);
     }
-
 
     /**
      * Reject Material Request

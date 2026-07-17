@@ -3,17 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreWastageRequest;
-use App\Models\Material;
 use App\Models\MaterialConsumption;
 use App\Models\MaterialDispatchItem;
 use App\Models\StockLedger;
 use App\Models\Wastage;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-
 
 class WastageController extends Controller implements HasMiddleware
 {
@@ -29,22 +26,32 @@ class WastageController extends Controller implements HasMiddleware
 
         ];
     }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $wastages = Wastage::with([
+        $query = Wastage::with([
             'material',
-            'recordedBy'
-        ])->latest()->paginate(10);
+            'recordedBy',
+        ]);
+
+        // Super Admin & Admin can see all records
+        if (! auth()->user()->hasAnyRole(['Super Admin', 'Admin'])) {
+            $query->where('recorded_by', auth()->id());
+        }
+
+        $wastages = $query
+            ->latest()
+            ->paginate(10);
 
         $dispatchItems = MaterialDispatchItem::with([
             'material',
             'dispatch',
             'consumptions' => function ($query) {
                 $query->latest('id');
-            }
+            },
         ])
             ->whereHas('dispatch', function ($query) {
                 $query->where('status', 'completed');
@@ -113,7 +120,7 @@ class WastageController extends Controller implements HasMiddleware
 
                 throw ValidationException::withMessages([
                     'quantity' => 'Wastage quantity cannot exceed remaining quantity 
-                    (' . number_format($remainingQty, 3) . ' ' . $dispatchItem->material->unit . ').',
+                    ('.number_format($remainingQty, 3).' '.$dispatchItem->material->unit.').',
                 ]);
             }
 
@@ -123,9 +130,9 @@ class WastageController extends Controller implements HasMiddleware
             // Generate Wastage Number
             $nextId = (Wastage::max('id') ?? 0) + 1;
 
-            $wastageNo = 'WS-' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
+            $wastageNo = 'WS-'.str_pad($nextId, 6, '0', STR_PAD_LEFT);
 
-           $wastage = Wastage::create([
+            $wastage = Wastage::create([
                 'wastage_no' => $wastageNo,
                 'material_id' => $dispatchItem->material_id,
                 'quantity' => $validated['quantity'],
@@ -169,7 +176,6 @@ class WastageController extends Controller implements HasMiddleware
     /**
      * Remove the specified resource from storage.
      */
-
     public function destroy(Wastage $wastage)
     {
         DB::transaction(function () use ($wastage) {

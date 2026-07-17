@@ -43,12 +43,15 @@
 
         </div>
 
+        @can('material.create')
+          
         <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#materialModal">
 
           <i class="bi bi-plus-circle"></i>
           Add Material
 
         </button>
+        @endcan
 
       </div>
 

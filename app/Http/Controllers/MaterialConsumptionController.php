@@ -21,7 +21,6 @@ class MaterialConsumptionController extends Controller implements HasMiddleware
         ];
     }
 
-
     public function index()
     {
         $dispatchItems = MaterialDispatchItem::with([
@@ -31,26 +30,42 @@ class MaterialConsumptionController extends Controller implements HasMiddleware
             ->withSum('consumptions', 'consumed_qty')
             ->where('received_qty', '>', 0)
             ->whereHas('dispatch', function ($query) {
-                $query->where('status', 'completed');
-            })
-            ->latest()
-            ->get()
-            ->map(function ($item) {
 
-                $item->remaining_qty =
-                    (float) $item->received_qty
-                    - (float) ($item->consumptions_sum_consumed_qty ?? 0);
+                $query->where('status', 'completed');
+
+                // Only own dispatches for normal users
+                if (! auth()->user()->hasAnyRole(['Super Admin', 'Admin'])) {
+                    $query->where('dispatched_by', auth()->id());
+                }
+
+            })->latest()->get()->map(function ($item) {
+
+                $item->remaining_qty = (float) $item->received_qty - (float) ($item->consumptions_sum_consumed_qty ?? 0);
 
                 return $item;
 
             });
 
+        $consumptionQuery = MaterialConsumption::with([
+            'material',
+            'dispatchItem.dispatch',
+            'recordedBy',
+        ]);
 
-        $consumptions = MaterialConsumption::with(['material', 'dispatchItem.dispatch', 'recordedBy',])->latest('consumption_date')->get();
+        // Only own consumption records for normal users
+        if (! auth()->user()->hasAnyRole(['Super Admin', 'Admin'])) {
+            $consumptionQuery->where('recorded_by', auth()->id());
+        }
 
-        return view('stocks.material-consumption.list', compact('dispatchItems', 'consumptions'));
+        $consumptions = $consumptionQuery
+            ->latest('consumption_date')
+            ->get();
+
+        return view('stocks.material-consumption.list', compact(
+            'dispatchItems',
+            'consumptions'
+        ));
     }
-
 
     public function store(StoreMaterialConsumptionRequest $request)
     {
@@ -62,14 +77,12 @@ class MaterialConsumptionController extends Controller implements HasMiddleware
                 $validated['material_dispatch_item_id']
             );
 
-
             // Check correct material
             if ((int) $dispatchItem->material_id !== (int) $validated['material_id']) {
                 throw ValidationException::withMessages([
                     'material_id' => 'The selected material does not match the dispatch item.',
                 ]);
             }
-
 
             // Only completed received materials can be consumed
             if ($dispatchItem->dispatch->status !== 'completed') {
@@ -78,7 +91,6 @@ class MaterialConsumptionController extends Controller implements HasMiddleware
                     'material_dispatch_item_id' => 'This material is not yet available for consumption.',
                 ]);
             }
-
 
             $receivedQty = (float) $dispatchItem->received_qty;
 
@@ -91,24 +103,21 @@ class MaterialConsumptionController extends Controller implements HasMiddleware
 
             $newRemainingQty = $remainingQty - (float) $validated['consumed_qty'];
 
-
             if ($remainingQty <= 0) {
 
                 throw ValidationException::withMessages([
-                    'consumed_qty' => 'This material has already been fully consumed.'
+                    'consumed_qty' => 'This material has already been fully consumed.',
                 ]);
             }
-
 
             if (
                 (float) $validated['consumed_qty'] > $remainingQty
             ) {
 
                 throw ValidationException::withMessages([
-                    'consumed_qty' => 'Consumed quantity cannot exceed the available quantity of ' . number_format($remainingQty, 3) . '.',
+                    'consumed_qty' => 'Consumed quantity cannot exceed the available quantity of '.number_format($remainingQty, 3).'.',
                 ]);
             }
-
 
             $consumption = MaterialConsumption::create([
                 'material_dispatch_item_id' => $dispatchItem->id,
@@ -124,7 +133,6 @@ class MaterialConsumptionController extends Controller implements HasMiddleware
                 'recorded_by' => auth()->id(),
             ]);
 
-
             StockLedger::add(
                 $dispatchItem->material_id,
                 'consumption',
@@ -137,10 +145,8 @@ class MaterialConsumptionController extends Controller implements HasMiddleware
             );
         });
 
-
         return redirect()->route('material-consumption.index')->with([
-            'message' =>
-                'Material consumption recorded successfully.',
+            'message' => 'Material consumption recorded successfully.',
             'alert-type' => 'success',
         ]);
     }
