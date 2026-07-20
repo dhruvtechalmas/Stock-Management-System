@@ -37,10 +37,18 @@ class Material extends Model
         return $this->hasMany(Wastage::class);
     }
 
+    public function stockLedgers()
+    {
+        return $this->hasMany(StockLedger::class);
+    }
+
+    public function requestItems()
+    {
+        return $this->hasMany(MaterialRequestItem::class);
+    }
+
     public function category()
     {
         return $this->belongsTo(MaterialCategory::class, 'material_category_id');
     }
-
-
 }

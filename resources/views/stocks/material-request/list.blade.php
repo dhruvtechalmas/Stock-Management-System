@@ -74,7 +74,7 @@
                                         <th>Request Date</th>
                                         <th>Request Qty</th>
                                         <th>Status</th>
-                                        <th>Created At</th>
+                                        {{-- <th>Created At</th> --}}
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -85,7 +85,7 @@
                                             <td><strong>{{ $materialRequest->request_no }}</strong></td>
                                             <td>
                                                 @foreach($materialRequest->items as $item)
-                                                    {{ $item->material->material_name }}<br>
+                                                    {{ $item->material?->material_name ?? 'Material Deleted' }}<br>
                                                 @endforeach
                                             </td>
                                             <td>{{ $materialRequest->user->name ?? '-' }}</td>
@@ -101,10 +101,10 @@
                                                 </span>
                                             </td>
 
-                                            <td style="white-space: nowrap;">
+                                            {{-- <td style="white-space: nowrap;">
                                                 <i class="bi bi-calendar3 text-primary me-2"></i>
                                                 {{ $materialRequest->created_at->format('M d, Y') }}
-                                            </td>
+                                            </td> --}}
                                             <td style="white-space: nowrap;">
 
                                                 @hasrole('Kitchen Staff')

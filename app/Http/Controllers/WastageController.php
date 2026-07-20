@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreWastageRequest;
+use App\Models\AppNotification;
 use App\Models\MaterialConsumption;
 use App\Models\MaterialDispatchItem;
 use App\Models\StockLedger;
@@ -155,6 +156,12 @@ class WastageController extends Controller implements HasMiddleware
                 'Material Wastage'
             );
 
+            AppNotification::send(
+                null,
+                'Admin',
+                'Material Wastage Reported',
+                'Kitchen staff '.auth()->user()->name.' reported wastage of '.number_format($validated['quantity'], 2).' units of '.$dispatchItem->material->material_name.'.'
+            );
         });
 
         return redirect()->route('wastages.index')->with([

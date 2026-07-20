@@ -14,9 +14,7 @@
 
                 <div class="px-2 px-md-3">
 
-                    <form action="{{ route('suppliers.update', $supplier->id) }}"
-                        method="POST"
-                        class="needs-validation"
+                    <form action="{{ route('suppliers.update', $supplier->id) }}" method="POST" class="needs-validation"
                         novalidate>
 
                         @csrf
@@ -31,12 +29,8 @@
                                     Supplier Name
                                 </label>
 
-                                <input
-                                    type="text"
-                                    name="name"
-                                    class="form-control @error('name') is-invalid @enderror"
-                                    value="{{ old('name', $supplier->name) }}"
-                                    placeholder="Enter Supplier Name">
+                                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                                    value="{{ old('name', $supplier->name) }}" placeholder="Enter Supplier Name">
 
                                 @error('name')
                                     <div class="invalid-feedback d-block">
@@ -53,9 +47,7 @@
                                     Contact Person
                                 </label>
 
-                                <input
-                                    type="text"
-                                    name="contact_person"
+                                <input type="text" name="contact_person"
                                     class="form-control @error('contact_person') is-invalid @enderror"
                                     value="{{ old('contact_person', $supplier->contact_person) }}"
                                     placeholder="Enter Contact Person">
@@ -75,13 +67,9 @@
                                     Phone Number
                                 </label>
 
-                                <input
-                                    type="text"
-                                    name="phone"
+                                <input type="text" name="phone"
                                     class="form-control @error('phone') is-invalid @enderror"
-                                    value="{{ old('phone', $supplier->phone) }}"
-                                    maxlength="10"
-                                    inputmode="numeric"
+                                    value="{{ old('phone', $supplier->phone) }}" maxlength="10" inputmode="numeric"
                                     pattern="[0-9]{10}"
                                     oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)"
                                     placeholder="Enter 10 Digit Phone Number">
@@ -101,12 +89,9 @@
                                     Email Address
                                 </label>
 
-                                <input
-                                    type="email"
-                                    name="email"
+                                <input type="email" name="email"
                                     class="form-control @error('email') is-invalid @enderror"
-                                    value="{{ old('email', $supplier->email) }}"
-                                    placeholder="Enter Email Address">
+                                    value="{{ old('email', $supplier->email) }}" placeholder="Enter Email Address">
 
                                 @error('email')
                                     <div class="invalid-feedback d-block">
@@ -123,9 +108,7 @@
                                     Address
                                 </label>
 
-                                <textarea
-                                    name="address"
-                                    rows="3"
+                                <textarea name="address" rows="3"
                                     class="form-control @error('address') is-invalid @enderror"
                                     placeholder="Enter Supplier Address">{{ old('address', $supplier->address) }}</textarea>
 
@@ -144,19 +127,15 @@
                                     Status
                                 </label>
 
-                                <select
-                                    name="is_active"
-                                    class="form-select @error('is_active') is-invalid @enderror">
+                                <select name="is_active" class="form-select @error('is_active') is-invalid @enderror">
 
                                     <option value="">Select Status</option>
 
-                                    <option value="1"
-                                        {{ old('is_active', $supplier->is_active) == 1 ? 'selected' : '' }}>
+                                    <option value="1" {{ old('is_active', $supplier->is_active) == 1 ? 'selected' : '' }}>
                                         Active
                                     </option>
 
-                                    <option value="0"
-                                        {{ old('is_active', $supplier->is_active) == 0 ? 'selected' : '' }}>
+                                    <option value="0" {{ old('is_active', $supplier->is_active) == 0 ? 'selected' : '' }}>
                                         Inactive
                                     </option>
 
@@ -174,18 +153,14 @@
 
                         <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
 
-                            <button
-                                type="button"
-                                class="btn btn-outline-secondary"
+                            <button type="button" id="cancelSupplierBtn" class="btn btn-outline-secondary"
                                 data-bs-dismiss="modal">
 
                                 Cancel
 
                             </button>
 
-                            <button
-                                type="submit"
-                                class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary">
 
                                 <i class="bi bi-check-circle"></i>
 

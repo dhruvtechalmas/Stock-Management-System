@@ -44,13 +44,13 @@
         </div>
 
         @can('material.create')
-          
-        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#materialModal">
 
-          <i class="bi bi-plus-circle"></i>
-          Add Material
+          <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#materialModal">
 
-        </button>
+            <i class="bi bi-plus-circle"></i>
+            Add Material
+
+          </button>
         @endcan
 
       </div>
@@ -85,7 +85,7 @@
                 <th>Current Stock</th>
                 <th>Minimum Stock</th>
                 <th>Status</th>
-                <th>Created At</th>
+                {{-- <th>Created At</th> --}}
                 <th>Action</th>
               </tr>
             </thead>
@@ -134,10 +134,10 @@
                   </td>
 
                   {{-- Created At --}}
-                  <td style="white-space: nowrap;">
+                  {{-- <td style="white-space: nowrap;">
                     <i class="bi bi-calendar3 text-primary me-2"></i>
                     {{ $material->created_at->format('M d, Y') }}
-                  </td>
+                  </td> --}}
 
                   {{-- Action --}}
                   <td style="white-space: nowrap;">
@@ -150,7 +150,8 @@
                     @endcan
 
                     @can('material.delete')
-                      <form action="{{ route('materials.destroy', $material->id) }}" method="POST" class="d-inline">
+                      <form action="{{ route('materials.destroy', $material->id) }}" method="POST"
+                        class="d-inline delete-material-form">
                         @csrf
                         @method('DELETE')
 
@@ -185,30 +186,23 @@
 
 
   <script>
-    document.querySelectorAll('.delete-form').forEach(form => {
+    document.addEventListener('submit', function (e) {
+      if (!e.target.classList.contains('delete-material-form')) return;
 
-      form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const form = e.target;
 
-        e.preventDefault();
-
-        Swal.fire({
-          title: 'Are you sure?',
-          text: "You won't be able to recover this record!",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Yes, Delete it!'
-        }).then((result) => {
-
-          if (result.isConfirmed) {
-            form.submit();
-          }
-
-        });
-
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to recover this Material Request!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Delete it!',
+      }).then(function (result) {
+        if (result.isConfirmed) form.submit();
       });
-
     });
   </script>
 
@@ -239,6 +233,25 @@
   @endif
 
   <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+      document.querySelectorAll('.modal').forEach(function (modal) {
+
+        modal.addEventListener('hidden.bs.modal', function () {
+
+          if (
+            window.location.search ||
+            document.querySelector('.invalid-feedback')
+          ) {
+            window.location.href = "{{ route('materials.index') }}";
+          }
+
+        });
+
+      });
+
+    });
     document.addEventListener('DOMContentLoaded', function () {
 
       document.querySelectorAll('.btn-close').forEach(function (closeButton) {

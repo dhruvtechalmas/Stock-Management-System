@@ -186,6 +186,7 @@
           <span class="nav-text">Stock Report</span>
         </a> --}}
 
+        @can('user.index')       
         <!-- Settings Heading -->
         <div class="sidebar-heading">SETTINGS</div>
 
@@ -193,6 +194,7 @@
           <span class="nav-icon"><i class="bi bi-people" aria-hidden="true"></i></span>
           <span class="nav-text">Users</span>
         </a>
+        @endcan
 
       </nav>
 
@@ -213,28 +215,55 @@
               title="Switch color theme">
               <i class="bi bi-moon-stars" data-theme-icon aria-hidden="true"></i>
             </button>
-            <div class="dropdown">
+            <div class="dropdown" id="notificationDropdown">
               <button class="icon-button" type="button" data-bs-toggle="dropdown" aria-expanded="false"
-                aria-label="Notifications">
-                <span class="notification-dot"></span>
+                aria-label="Notifications" id="notificationBellBtn">
+                <span class="notification-dot d-none" id="notificationDot"></span>
                 <i class="bi bi-bell" aria-hidden="true"></i>
               </button>
-              <div class="dropdown-menu dropdown-menu-end notification-menu">
-                <div class="dropdown-header fw-bold text-body">Notifications</div>
-                <a class="dropdown-item" href="users">
-                  <span class="notification-title">New user registered</span>
-                  <span class="notification-time">4 minutes ago</span>
-                </a>
-                <a class="dropdown-item" href="charts">
-                  <span class="notification-title">Revenue target reached</span>
-                  <span class="notification-time">32 minutes ago</span>
-                </a>
-                <a class="dropdown-item" href="settings">
-                  <span class="notification-title">Security review completed</span>
-                  <span class="notification-time">1 hour ago</span>
-                </a>
+              <div class="dropdown-menu dropdown-menu-end p-0" style="border: 1px solid var(--admin-border); background-color: var(--admin-surface); box-shadow: var(--admin-shadow); border-radius: 8px; overflow: hidden;">
+                <!-- Custom dropdown header -->
+                <div class="d-flex justify-content-between align-items-center p-3 border-bottom" style="background-color: var(--admin-surface-soft); color: var(--admin-text);">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold" style="font-size: 0.95rem;">Notifications</span>
+                    <span class="badge bg-danger rounded-pill" id="notificationCountBadge" style="font-size: 0.75rem; padding: 0.35em 0.65em;">0</span>
+                  </div>
+                  <a href="javascript:void(0);" class="small fw-semibold text-decoration-none" id="markAllReadBtn" style="color: var(--admin-primary); font-size: 0.8rem;">Mark all read</a>
+                </div>
+                <!-- Dropdown items container -->
+                <div id="notificationListContainer" style="overflow-y: auto; max-height: 280px; background-color: var(--admin-surface);">
+                  <!-- Notifications will load dynamically here -->
+                </div>
+                <!-- Dropdown footer -->
+                <div class="border-top p-2 text-center" style="background-color: var(--admin-surface-soft);">
+                  <a href="{{ route('notifications.history') }}" class="small fw-semibold text-decoration-none d-block" style="color: var(--admin-primary); font-size: 0.8rem;">
+                    <i class="bi bi-clock-history me-1"></i> View All History
+                  </a>
+                </div>
               </div>
             </div>
+
+            <style>
+              /* Premium notification dropdown styles supporting light & dark themes */
+              #notificationDropdown .dropdown-menu {
+                width: min(320px, calc(100vw - 2rem));
+                border: 1px solid var(--admin-border) !important;
+                background-color: var(--admin-surface) !important;
+                box-shadow: var(--admin-shadow) !important;
+              }
+              #notificationDropdown .dropdown-menu.show {
+                display: flex !important;
+                flex-direction: column;
+              }
+              .notification-item {
+                transition: background-color 0.15s ease-in-out;
+                background-color: var(--admin-surface) !important;
+                cursor: pointer;
+              }
+              .notification-item:hover {
+                background-color: var(--admin-surface-soft) !important;
+              }
+            </style>
 
             <div class="dropdown">
               <button class="profile-button dropdown-toggle" type="button" data-bs-toggle="dropdown"

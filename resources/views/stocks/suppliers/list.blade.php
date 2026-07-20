@@ -84,7 +84,7 @@
                                 <th>Phone</th>
                                 <th>Email</th>
                                 <th>Status</th>
-                                <th>Created At</th>
+                                {{-- <th>Created At</th> --}}
                                 <th>Action</th>
 
                             </tr>
@@ -125,13 +125,13 @@
 
                                     </td>
 
-                                    <td style="white-space: nowrap;">
+                                    {{-- <td style="white-space: nowrap;">
 
                                         <i class="bi bi-calendar3 text-primary me-2"></i>
 
                                         {{ $supplier->created_at->format('M d, Y') }}
 
-                                    </td>
+                                    </td> --}}
 
                                     <td style="white-space: nowrap;">
 
@@ -241,6 +241,25 @@
 
 
             <script>
+
+                 document.addEventListener('DOMContentLoaded', function () {
+
+                document.querySelectorAll('.modal').forEach(function (modal) {
+
+                    modal.addEventListener('hidden.bs.modal', function () {
+
+                        if (
+                            window.location.search ||
+                            document.querySelector('.invalid-feedback')
+                        ) {
+                            window.location.href = "{{ route('suppliers.index') }}";
+                        }
+
+                    });
+
+                });
+
+            });
             document.addEventListener('DOMContentLoaded', function () {
 
                 document.querySelectorAll('.btn-close').forEach(function (closeButton) {

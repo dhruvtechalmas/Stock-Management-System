@@ -134,21 +134,6 @@
                                 @enderror --}}
                             </div>
 
-                            <!-- Current Stock -->
-                            <div class="col-md-6">
-                                <label class="form-label">Current Stock</label>
-
-                                <input type="number" name="current_stock"
-                                    class="form-control @error('current_stock') is-invalid @enderror"
-                                    value="{{ old('current_stock', $material->current_stock) }}" min="0" step="0.01" placeholder="Enter Current Stock">
-
-                                {{-- @error('current_stock')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror --}}
-                            </div>
-
                             <!-- Minimum Stock -->
                             <div class="col-md-6">
                                 <label class="form-label">Minimum Stock</label>

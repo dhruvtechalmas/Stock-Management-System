@@ -69,7 +69,7 @@
                                         <th>Purchase Date</th>
                                         <th>Total Amount</th>
                                         <th>Created By</th>
-                                        <th>Created At</th>
+                                        {{-- <th>Created At</th> --}}
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -97,24 +97,24 @@
                                                     </span>
                                                 @endif
                                             </td>
-                                            <td style="white-space: nowrap;">
+                                            {{-- <td style="white-space: nowrap;">
                                                 <i class="bi bi-calendar3 text-primary me-2"></i>
                                                 {{ $purchase->created_at->format('M d, Y') }}
-                                            </td>
+                                            </td> --}}
                                             <td style="white-space: nowrap;">
                                                 <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
                                                     data-bs-target="#editPurchaseModal{{ $purchase->id }}">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </button>
 
-                                                <form action="{{ route('purchases.destroy', $purchase->id) }}" method="POST"
+                                                {{-- <form action="{{ route('purchases.destroy', $purchase->id) }}" method="POST"
                                                     class="d-inline delete-purchase-form">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-outline-danger btn-sm">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
-                                                </form>
+                                                </form> --}}
 
                                                 <a href="{{ route('purchases.show', $purchase->id) }}"
                                                     class="btn btn-outline-info btn-sm">
@@ -163,6 +163,24 @@
         @endif
 
         <script>
+             document.addEventListener('DOMContentLoaded', function () {
+
+                document.querySelectorAll('.modal').forEach(function (modal) {
+
+                    modal.addEventListener('hidden.bs.modal', function () {
+
+                        if (
+                            window.location.search ||
+                            document.querySelector('.invalid-feedback')
+                        ) {
+                            window.location.href = "{{ route('purchases.index') }}";
+                        }
+
+                    });
+
+                });
+
+            });
             document.addEventListener('DOMContentLoaded', function () {
 
                 document.querySelectorAll('.btn-close').forEach(function (closeButton) {
@@ -175,14 +193,4 @@
 
             });
         </script>
-        {{--
-        <script>
-            flatpickr("#purchase_date", {
-                altInput: true,
-                altFormat: "d M Y",   // Display format
-                dateFormat: "Y-m-d",  // Submitted to Laravel
-                defaultDate: "{{ old('purchase_date') }}"
-            });
-        </script>
-        --}}
 @endsection

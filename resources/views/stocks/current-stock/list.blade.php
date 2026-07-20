@@ -201,7 +201,7 @@
                                     Wastage
                                 </th>
 
-                                <th class="text-dark">
+                                <th>
                                     Closing
                                 </th>
 
@@ -209,7 +209,7 @@
 
                             </tr>
 
-                        </thead>
+                        </thead>    
 
                         <tbody>
 

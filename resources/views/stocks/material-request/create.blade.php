@@ -19,7 +19,9 @@
             </div>
 
             <div class="col-md-4">
-                <label class="form-label">Request Date</label>
+                <label class="form-label">Request Date
+                    <span class="text-danger">*</span>
+                </label>
 
                 <input type="text"
                     id="request_date"
@@ -49,9 +51,13 @@
             <table class="table table-bordered align-middle">
                 <thead>
                     <tr>
-                        <th width="150">Material</th>
+                        <th width="150">Material
+                            <span class="text-danger">*</span>
+                        </th>
                         <th width="150">Unit</th>
-                        <th width="150">Request Qty</th>
+                        <th width="150">Request Qty
+                            <span class="text-danger">*</span>
+                        </th>
                         <th width="80">Action</th>
                     </tr>
                 </thead>
@@ -67,7 +73,9 @@
                                 class="form-select material-select searchable-material
                                 {{ $errors->create->has("items.$index.material_id") ? 'is-invalid' : '' }}">
 
-                                <option value="">Select Material</option>
+                                <option value="">Select Material
+                                    <span class="text-danger">*</span>
+                                </option>
 
                                 @foreach($materials as $material)
                                     <option

@@ -15,10 +15,10 @@ class StoreSupplierRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'contact_person' => 'nullable|string|max:255',
-            'phone' => 'nullable|digits:10',
+            'contact_person' => 'required|string|max:255',
+            'phone' => 'required|digits:10',
             'email' => 'nullable|email|max:255',
-            'address' => 'nullable|string',
+            'address' => 'required|string',
             'is_active' => 'required|boolean',
         ];
     }
@@ -27,8 +27,16 @@ class StoreSupplierRequest extends FormRequest
     {
         return [
             'name.required' => 'Supplier name is required.',
+            'contanc_person.required' => 'Contact person is required.',
+            'contact_person.string' => 'Contact person must be a string.',
+            'contact_person.max' => 'Contact person name cannot exceed 255 characters.',
+            'phone.nullable' => 'Phone number is not required.',
             'phone.digits' => 'Phone number must be exactly 10 digits.',
             'email.email' => 'Please enter a valid email address.',
+            'email.nullable' => 'Email address is not required.',
+            'email.max' => 'Email address cannot exceed 255 characters.',
+            'address.nullable' => 'Address is not required.',
+            'address.string' => 'Address must be a string.',
             'is_active.required' => 'Please select a status.',
         ];
     }

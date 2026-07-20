@@ -73,7 +73,7 @@
 
                             <div>
                                 <span>Material Category</span>
-                                <strong>{{ $material->category->category_name }}</strong>
+                                <strong>{{ $material->category?->category_name ?? 'N/A' }}</strong>
                             </div>
 
                             <div>
@@ -201,7 +201,150 @@
 
             </section>
 
+                <div class="panel mt-4">
+
+    <div class="panel-header d-flex justify-content-between align-items-center">
+
+        <h2 class="h5 mb-0">
+            Stock Ledger History
+        </h2>
+
+        <span class="badge bg-primary">
+            {{ $stockLedgers->count() }} Transactions
+        </span>
+
+    </div>
+
+    <div class="table-responsive">
+
+        <table class="table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Transaction</th>
+                    <th>Qty In</th>
+                    <th>Qty Out</th>
+                    <th>Balance</th>
+                    <th>User</th>
+                    <th>Remarks</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                @forelse($stockLedgers as $ledger)
+
+                    <tr>
+
+                        <td>{{ $loop->iteration }}</td>
+
+                        <td>
+                            {{ $ledger->created_at->format('d M Y') }}
+                        </td>
+
+                        <td>
+
+                            @switch($ledger->transaction_type)
+
+                                @case('purchase')
+                                    <span class="badge bg-success">Purchase</span>
+                                    @break
+
+                                @case('dispatch')
+                                    <span class="badge bg-warning text-dark">Dispatch</span>
+                                    @break
+
+                                @case('consumption')
+                                    <span class="badge bg-info">Consumption</span>
+                                    @break
+
+                                @case('wastage')
+                                    <span class="badge bg-danger">Wastage</span>
+                                    @break
+
+                                @case('opening_stock')
+                                    <span class="badge bg-primary">Opening Stock</span>
+                                    @break
+
+                                @default
+                                    <span class="badge bg-secondary">
+                                        {{ ucfirst($ledger->transaction_type) }}
+                                    </span>
+
+                            @endswitch
+
+                        </td>
+
+                        <td class="text-success fw-bold">
+
+                            @if($ledger->qty_in > 0)
+                                <span class="text-success fw-bold">
+                                    +{{ number_format($ledger->qty_in,3) }}
+                                </span>
+                            @else   
+                                -
+                            @endif
+
+                        </td>
+
+                        <td class="text-danger fw-bold">
+
+                           @if($ledger->qty_out > 0)
+                                <span class="text-danger fw-bold">
+                                    -{{ number_format($ledger->qty_out,3) }}
+                                </span>
+                            @else
+                                -
+                            @endif
+
+                        </td>
+
+                        <td class="fw-bold">
+                            {{ number_format($ledger->balance_after,3) }}
+                            {{ $material->unit }}
+                        </td>
+
+                        <td>
+                            {{ $ledger->user->name ?? '-' }}
+                        </td>
+
+                        <td>
+                            {{ $ledger->remarks }}
+                        </td>
+
+                    </tr>
+
+                @empty
+
+                    <tr>
+
+                        <td colspan="8" class="text-center text-muted py-4">
+
+                            No stock ledger history found.
+
+                        </td>
+
+                    </tr>
+
+                @endforelse
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
         </div>
+
+    
 
     </main>
 

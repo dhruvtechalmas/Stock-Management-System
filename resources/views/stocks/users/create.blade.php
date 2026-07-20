@@ -27,7 +27,11 @@
 
             {{-- User Name --}}
             <div class="col-md-12">
-                <label class="form-label">User Name</label>
+                <label class="form-label">User Name
+                     <span>
+                        <small class="text-danger">*</small>
+                    </span>
+                </label>
 
                 <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                     value="{{ old('name') }}" placeholder="Enter User Name">
@@ -41,7 +45,11 @@
 
             {{-- Email --}}
             <div class="col-md-12">
-                <label class="form-label">Email Address</label>
+                <label class="form-label">Email Address
+                     <span>
+                        <small class="text-danger">*</small>
+                    </span>
+                </label>
 
                 <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
                     value="{{ old('email') }}" placeholder="Enter Email Address">
@@ -70,7 +78,11 @@
 
             {{-- Password --}}
             <div class="col-md-12">
-                <label class="form-label">Password</label>
+                <label class="form-label">Password
+                     <span>
+                        <small class="text-danger">*</small>
+                    </span>
+                </label>
 
                 <div class="input-group">
                     <input type="password" id="password" name="password"
@@ -89,7 +101,11 @@
             </div>
             {{-- Confirm Password --}}
             <div class="col-md-12">
-                <label class="form-label">Confirm Password</label>
+                <label class="form-label">Confirm Password
+                     <span>
+                        <small class="text-danger">*</small>
+                    </span>
+                </label>
 
                 <div class="input-group">
                     <input type="password" id="password_confirmation" name="password_confirmation" class="form-control"

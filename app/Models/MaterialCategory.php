@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class MaterialCategory extends Model
 {
-   protected $fillable = [
+    protected $fillable = [
         'category_name',
         'status',
     ];
 
     public function materials()
     {
-        return $this->hasMany(Material::class);
+        return $this->hasMany(Material::class, 'material_category_id');
     }
 }

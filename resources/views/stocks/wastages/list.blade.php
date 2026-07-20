@@ -226,6 +226,24 @@
     @endif
 
     <script>
+         document.addEventListener('DOMContentLoaded', function () {
+
+                document.querySelectorAll('.modal').forEach(function (modal) {
+
+                    modal.addEventListener('hidden.bs.modal', function () {
+
+                        if (
+                            window.location.search ||
+                            document.querySelector('.invalid-feedback')
+                        ) {
+                            window.location.href = "{{ route('wastages.index') }}";
+                        }
+
+                    });
+
+                });
+
+            });
         document.addEventListener('DOMContentLoaded', function () {
 
             const wastageIndexUrl = "{{ route('wastages.index') }}";

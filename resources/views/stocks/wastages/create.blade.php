@@ -8,32 +8,29 @@
 
             {{-- Material --}}
             <div class="col-md-12 mb-3">
-
                 <label class="form-label">
                     Material <span class="text-danger">*</span>
                 </label>
 
-                <select name="material_dispatch_item_id" id="material_dispatch_item_id"
-                    class="form-select @error('material_dispatch_item_id') is-invalid @enderror">
+                <select name="material_dispatch_item_id"
+                        id="material_dispatch_item_id"
+                        class="form-select no-tom-select @error('material_dispatch_item_id') is-invalid @enderror">
 
-                    <option value="">-- Select Material --</option>
+                    <option  value="">-- Select Material --</option>
 
                     @foreach($dispatchItems as $item)
-
                         @if($item->remaining_qty > 0)
-
-                            <option value="{{ $item->id }}" data-stock="{{ $item->remaining_qty }}"
-                                data-unit="{{ $item->material->unit }}" data-material="{{ $item->material_id }}">
+                            <option
+                                value="{{ $item->id }}"
+                                data-stock="{{ $item->remaining_qty }}"
+                                data-unit="{{ $item->material->unit }}"
+                                data-material="{{ $item->material_id }}"
+                                {{ old('material_dispatch_item_id') == $item->id ? 'selected' : '' }}>
 
                                 {{ $item->material->material_name }}
-                                (Remaining :
-                                {{ number_format($item->remaining_qty, 3) }}
-                                {{ $item->material->unit }})
-
+                                (Remaining: {{ number_format($item->remaining_qty, 3) }} {{ $item->material->unit }})
                             </option>
-
                         @endif
-
                     @endforeach
 
                 </select>
@@ -43,10 +40,7 @@
                         {{ $message }}
                     </div>
                 @enderror
-
             </div>
-
-            <input type="hidden" name="material_id" id="material_id">
 
             <input type="hidden" name="material_id" id="material_id">
 
@@ -159,52 +153,55 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function () {
 
-    document.addEventListener('DOMContentLoaded', function () {
+    // Initialize TomSelect for all selects except .no-tom-select
+    document.querySelectorAll('.form-select:not(.no-tom-select)').forEach(function (el) {
+        if (!el.tomselect) {
+            new TomSelect(el);
+        }
+    });
 
-        const materialSelect = document.getElementById('material_dispatch_item_id');
-        const materialId = document.getElementById('material_id');
-        const stockInput = document.getElementById('available_stock');
-        const unitInput = document.getElementById('unit');
-        const quantityInput = document.getElementById('quantity');
+    const materialSelect = document.getElementById('material_dispatch_item_id');
+    const materialId = document.getElementById('material_id');
+    const stockInput = document.getElementById('available_stock');
+    const unitInput = document.getElementById('unit');
+    const quantityInput = document.getElementById('quantity');
 
-        function updateMaterialDetails() {
+    function updateMaterialDetails() {
 
-            const option = materialSelect.options[materialSelect.selectedIndex];
+        const option = materialSelect.options[materialSelect.selectedIndex];
 
-            if (!option.value) {
-
-                materialId.value = '';
-                stockInput.value = '';
-                unitInput.value = '';
-                quantityInput.value = '';
-                quantityInput.removeAttribute('max');
-
-                return;
-            }
-
-            materialId.value = option.dataset.materialId;
-
-            stockInput.value = option.dataset.stock;
-
-            unitInput.value = option.dataset.unit;
-
-            quantityInput.max = option.dataset.stock;
+        if (!option || option.value === '') {
+            materialId.value = '';
+            stockInput.value = '';
+            unitInput.value = '';
+            quantityInput.value = '';
+            quantityInput.removeAttribute('max');
+            return;
         }
 
-        materialSelect.addEventListener('change', updateMaterialDetails);
+        materialId.value = option.dataset.material;
+        stockInput.value = option.dataset.stock;
+        unitInput.value = option.dataset.unit;
+        quantityInput.setAttribute('max', option.dataset.stock);
+    }
 
-        quantityInput.addEventListener('input', function () {
+    materialSelect.addEventListener('change', updateMaterialDetails);
 
-            const max = parseFloat(this.max);
+    quantityInput.addEventListener('input', function () {
+        const max = parseFloat(this.max);
+        const value = parseFloat(this.value);
 
-            if (!isNaN(max) && parseFloat(this.value) > max) {
+        if (!isNaN(max) && value > max) {
+            this.value = max;
+        }
 
-                this.value = max;
-            }
-        });
-
-        updateMaterialDetails();
-
+        if (value < 0) {
+            this.value = '';
+        }
     });
+
+    updateMaterialDetails();
+});
 </script>

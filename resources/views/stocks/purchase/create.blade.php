@@ -11,7 +11,11 @@
             </div>
 
             <div class="col-md-4">
-                <label class="form-label">Supplier</label>
+                <label class="form-label">Supplier
+                     <span>
+                        <small class="text-danger">*</small>
+                    </span>
+                </label>
                 <select name="supplier_id" class="form-select @error('supplier_id') is-invalid @enderror">
                     <option value="">Select Supplier</option>
                     @foreach($suppliers as $supplier)
@@ -35,7 +39,11 @@
             </div>
 
             <div class="col-md-4">
-                <label class="form-label">Purchase Date</label>
+                <label class="form-label">Purchase Date
+                     <span>
+                        <small class="text-danger">*</small>
+                    </span>
+                </label>
                 <input type="text" id="purchase_date" name="purchase_date" class="form-control"
                     placeholder="dd/mm/yyyy" value="{{ old('purchase_date') }}">
                 @error('purchase_date')
@@ -52,10 +60,22 @@
             <table class="table table-bordered align-middle">
                 <thead>
                     <tr>
-                        <th>Material</th>
+                        <th>Material
+                            <span>
+                                <small class="text-danger">*</small>
+                            </span>
+                        </th>
                         <th>Unit</th>
-                        <th width="150">Qty</th>
-                        <th width="150">Unit Price</th>
+                        <th width="150">Qty
+                            <span>
+                                <small class="text-danger">*</small>
+                            </span>
+                        </th>
+                        <th width="150">Unit Price
+                            <span>
+                                <small class="text-danger">*</small>
+                            </span>
+                        </th>
                         <th width="150">Total</th>
                         <th width="80">Action</th>
                     </tr>
@@ -71,7 +91,11 @@
                                 name="items[{{ $index }}][material_id]"
                                 class="form-select material-select searchable-material">
 
-                                <option value="">Select Material</option>
+                                <option value="">Select Material
+                                     <span>
+                        <small class="text-danger">*</small>
+                    </span>
+                                </option>
 
                                 @foreach($materials as $material)
                                     <option
@@ -92,7 +116,7 @@
                                 </div>
                             @enderror
                         </td>
-                                                <td><input type="text" class="form-control unit" readonly></td>
+                            <td><input type="text" class="form-control unit" readonly></td>
                         <td>
                             <input
                                 type="number"
@@ -247,24 +271,24 @@
     });
 
     // Delete confirmation - works for every delete form on the page, present or future
-    document.addEventListener('submit', function (e) {
-        if (!e.target.classList.contains('delete-purchase-form')) return;
+    // document.addEventListener('submit', function (e) {
+    //     if (!e.target.classList.contains('delete-purchase-form')) return;
 
-        e.preventDefault();
-        const form = e.target;
+    //     e.preventDefault();
+    //     const form = e.target;
 
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to recover this purchase!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, Delete it!',
-        }).then(function (result) {
-            if (result.isConfirmed) form.submit();
-        });
-    });
+    //     Swal.fire({
+    //         title: 'Are you sure?',
+    //         text: "You won't be able to recover this purchase!",
+    //         icon: 'warning',
+    //         showCancelButton: true,
+    //         confirmButtonColor: '#3085d6',
+    //         cancelButtonColor: '#d33',
+    //         confirmButtonText: 'Yes, Delete it!',
+    //     }).then(function (result) {
+    //         if (result.isConfirmed) form.submit();
+    //     });
+    // });
 
    
 

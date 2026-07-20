@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMaterialRequest;
 use App\Http\Requests\UpdateMaterialRequest;
+use App\Models\AppNotification;
 use App\Models\Material;
 use App\Models\MaterialCategory;
+use App\Models\StockLedger;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class MaterialController extends Controller implements HasMiddleware
@@ -64,7 +67,14 @@ class MaterialController extends Controller implements HasMiddleware
             $data['image'] = $request->file('image')->store('materials', 'public');
         }
 
-        Material::create($data);
+        $material = Material::create($data);
+
+        AppNotification::send(
+            null,
+            'Kitchen Staff',
+            'New Material Added',
+            "Material '" . $material->material_name . "' has been added to the master inventory list."
+        );
 
         return redirect()->route('materials.index')->with([
             'message' => 'Material created successfully!',
@@ -77,7 +87,11 @@ class MaterialController extends Controller implements HasMiddleware
      */
     public function show(Material $material)
     {
-        return view('stocks.materials.view', compact('material'));
+        $material->load('category');
+
+        $stockLedgers = StockLedger::with('user')->where('material_id', $material->id)->latest()->get();
+
+        return view('stocks.materials.view', compact('material','stockLedgers'));
     }
 
     /**
@@ -106,6 +120,13 @@ class MaterialController extends Controller implements HasMiddleware
 
         $material->update($data);
 
+        AppNotification::send(
+            null,
+            'Kitchen Staff',
+            'Material Updated',
+            "Material '" . $material->material_name . "' details have been updated."
+        );
+
         return redirect()->route('materials.index')->with([
             'message' => 'Material updated successfully!',
             'alert-type' => 'success',
@@ -117,7 +138,27 @@ class MaterialController extends Controller implements HasMiddleware
      */
     public function destroy(Material $material)
     {
-        $material->delete();
+        DB::transaction(function () use ($material) {
+
+            $material->purchaseItems()->delete();
+            $material->dispatchItems()->delete();
+            $material->consumptions()->delete();
+            $material->wastages()->delete();
+            $material->stockLedgers()->delete();
+
+            // If you have this relationship
+            // $material->requestItems()->delete();
+
+            $materialName = $material->material_name;
+            $material->delete();
+
+            AppNotification::send(
+                null,
+                'Kitchen Staff',
+                'Material Deleted',
+                "Material '{$materialName}' has been removed from the inventory list."
+            );
+        });
 
         return redirect()->route('materials.index')->with([
             'message' => 'Material deleted successfully!',

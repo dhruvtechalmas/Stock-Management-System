@@ -87,20 +87,19 @@ class MaterialCategoryController extends Controller implements HasMiddleware
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MaterialCategory $material_category)
+    public function destroy(MaterialCategory $category)
     {
-        // Prevent deletion if materials belong to this category
-        if ($material_category->materials()->count() > 0) {
-            return redirect()->route('material-category.index')->with([
-                'message' => 'Cannot delete this category because materials are assigned to it.',
+        if ($category->materials()->exists()) {
+            return redirect()->back()->with([
+                'message' => 'This category is assigned to one or more materials and cannot be deleted.',
                 'alert-type' => 'error',
             ]);
         }
 
-        $material_category->delete();
+        $category->delete();
 
-        return redirect()->route('material-categories.index')->with([
-            'message' => 'Material Category deleted successfully!',
+        return redirect()->back()->with([
+            'message' => 'Category deleted successfully.',
             'alert-type' => 'success',
         ]);
     }

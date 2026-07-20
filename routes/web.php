@@ -13,6 +13,7 @@ use App\Http\Controllers\StockLedgerController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WastageController;
+use App\Models\AppNotification;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -91,7 +92,6 @@ Route::middleware('auth')->group(function () {
 
     });
 
-
     Route::prefix('material-consumption')->name('material-consumption.')->group(function () {
         // Main Page
         Route::get('/', [MaterialConsumptionController::class, 'index'])->name('index');
@@ -109,7 +109,74 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/stock-ledger', [StockLedgerController::class, 'index'])->name('stock-ledger.index');
 
-    Route::get('/current-stock',[CurrentStockReportController::class, 'index'])->name('current-stock-report.index');
+    Route::get('/current-stock', [CurrentStockReportController::class, 'index'])->name('current-stock-report.index');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notifications API
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/api/notifications', function () {
+        $user = auth()->user();
+        $isAdmin = $user->hasAnyRole(['Super Admin', 'Admin']);
+
+        $query = AppNotification::where('is_read', false);
+
+        if (!$isAdmin) {
+            $role = 'Kitchen Staff';
+            $query->where(function ($q) use ($user, $role) {
+                $q->where('user_id', $user->id)->orWhere('target_role', $role);
+            });
+        }
+
+        $notifications = $query->latest()->get();
+
+        return response()->json($notifications);
+    })->name('api.notifications.index');
+
+    Route::post('/api/notifications/{notification}/read', function (AppNotification $notification) {
+        $notification->update(['is_read' => true]);
+
+        return response()->json(['success' => true]);
+    })->name('api.notifications.read');
+
+    Route::post('/api/notifications/read-all', function () {
+        $user = auth()->user();
+        $isAdmin = $user->hasAnyRole(['Super Admin', 'Admin']);
+
+        $query = AppNotification::where('is_read', false);
+
+        if (!$isAdmin) {
+            $role = 'Kitchen Staff';
+            $query->where(function ($q) use ($user, $role) {
+                $q->where('user_id', $user->id)
+                    ->orWhere('target_role', $role);
+            });
+        }
+
+        $query->update(['is_read' => true]);
+
+        return response()->json(['success' => true]);
+    })->name('api.notifications.read-all');
+
+    Route::get('/notifications-history', function () {
+        $user = auth()->user();
+        $isAdmin = $user->hasAnyRole(['Super Admin', 'Admin']);
+        $role = $isAdmin ? 'Admin' : 'Kitchen Staff';
+
+        $query = AppNotification::with('user');
+
+        // Admin can see everything, other users can only see notifications that are targeting them directly or their role
+        if (!$isAdmin) {
+            $query->where(function ($q) use ($user, $role) {
+                $q->where('user_id', $user->id)->orWhere('target_role', $role);
+            });
+        }
+
+        $notifications = $query->latest()->paginate(15);
+
+        return view('stocks.notifications.history', compact('notifications'));
+    })->name('notifications.history');
 
 });
 

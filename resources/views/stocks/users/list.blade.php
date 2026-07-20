@@ -79,7 +79,7 @@
                 <th>User Email</th>
                 <th>User Role</th>
                 {{-- <th>Status</th> --}}
-                <th>Created At</th>
+                {{-- <th>Created At</th> --}}
                 <th>Action</th>
               </tr>
             </thead>
@@ -117,10 +117,10 @@
                   </td> --}}
                   
                   {{-- Created At --}}
-                  <td style="white-space: nowrap;">
+                  {{-- <td style="white-space: nowrap;">
                     <i class="bi bi-calendar3 text-primary me-2"></i>
                     {{ $user->created_at->format('M d, Y') }}
-                  </td>
+                  </td> --}}
 
                   {{-- Action --}}
                   <td style="white-space: nowrap;">

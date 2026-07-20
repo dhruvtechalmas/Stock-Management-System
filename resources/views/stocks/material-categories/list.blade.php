@@ -42,6 +42,8 @@
 
             </div>
 
+            @can('material-category.create')
+                
             <button
                 class="btn btn-outline-primary btn-sm"
                 data-bs-toggle="modal"
@@ -51,6 +53,7 @@
                 Add Category
 
             </button>
+            @endcan
 
         </div>
 
@@ -88,7 +91,7 @@
                             <th>#</th>
                             <th>Category Name</th>
                             <th>Status</th>
-                            <th>Created At</th>
+                            {{-- <th>Created At</th> --}}
                             @can('material-category.edit')                              
                             <th>Action</th>
                             @endcan
@@ -119,13 +122,13 @@
 
                                 </td>
 
-                                <td>
+                                {{-- <td>
 
                                     <i class="bi bi-calendar3 text-primary me-2"></i>
 
                                     {{ $category->created_at->format('M d, Y') }}
 
-                                </td>
+                                </td> --}}
 
                                 <td style="white-space: nowrap;">
 
@@ -145,16 +148,14 @@
                                     <form
                                         action="{{ route('material-category.destroy', $category->id) }}"
                                         method="POST"
-                                        class="d-inline">
+                                        class="d-inline delete-material-category-form">
 
                                         @csrf
                                         @method('DELETE')
 
                                         <button
                                             type="submit"
-                                            class="btn btn-outline-danger btn-sm"
-                                            onclick="return confirm('Are you sure you want to delete this category?')">
-
+                                            class="btn btn-outline-danger btn-sm">
                                             <i class="bi bi-trash"></i>
 
                                         </button>
@@ -243,4 +244,24 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         </script>
 
+<script>
+    document.addEventListener('submit', function (e) {
+      if (!e.target.classList.contains('delete-material-category-form')) return;
+
+      e.preventDefault();
+      const form = e.target;
+
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to recover this Material Request!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Delete it!',
+      }).then(function (result) {
+        if (result.isConfirmed) form.submit();
+      });
+    });
+  </script>
 @endsection

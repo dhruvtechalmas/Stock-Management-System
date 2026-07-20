@@ -7,6 +7,7 @@ use App\Http\Requests\DispatchMaterialRequest;
 use App\Http\Requests\ReceiveMaterialRequest;
 use App\Http\Requests\RejectMaterialDispatchRequest;
 use App\Http\Requests\ResolveDiscrepancyRequest;
+use App\Models\AppNotification;
 use App\Models\Material;
 use App\Models\MaterialDispatch;
 use App\Models\MaterialDispatchItem;
@@ -242,6 +243,13 @@ class MaterialDispatchController extends Controller implements HasMiddleware
                 'approved_by' => Auth::id(),
                 'approved_at' => now(),
             ]);
+
+            AppNotification::send(
+                $materialRequest->requested_by,
+                null,
+                'Material Request Dispatched',
+                "Your material request {$materialRequest->request_no} has been approved and items have been dispatched (Dispatch No: {$dispatch->dispatch_no})."
+            );
         });
 
         return redirect()
@@ -287,6 +295,13 @@ class MaterialDispatchController extends Controller implements HasMiddleware
                     'missing_qty' => 0,
                 ]);
             }
+
+            AppNotification::send(
+                $materialRequest->requested_by,
+                null,
+                'Material Request Rejected',
+                "Your material request {$materialRequest->request_no} has been rejected. Reason: {$validated['reject_reason']}."
+            );
         });
 
         return redirect()->route('material-dispatch.index')->with('success', 'Material request rejected successfully.');
@@ -421,6 +436,19 @@ class MaterialDispatchController extends Controller implements HasMiddleware
                 'remarks' => $validated['remarks'] ?? null,
 
             ]);
+
+            $recipientRole = 'Admin';
+            $title = $dispatch->status === 'received_with_discrepancy' ? 'Dispatch Received with Discrepancy' : 'Dispatch Received';
+            $message = $dispatch->status === 'received_with_discrepancy'
+                ? 'Kitchen staff '.auth()->user()->name." received dispatch {$dispatch->dispatch_no} with discrepancies."
+                : 'Kitchen staff '.auth()->user()->name." successfully received dispatch {$dispatch->dispatch_no}.";
+
+            AppNotification::send(
+                null,
+                $recipientRole,
+                $title,
+                $message
+            );
         });
 
         return redirect()
@@ -460,6 +488,14 @@ class MaterialDispatchController extends Controller implements HasMiddleware
                 'resolved_at' => now(),
 
             ]);
+
+            $dispatch->load('request');
+            AppNotification::send(
+                $dispatch->request->requested_by,
+                null,
+                'Discrepancy Resolved',
+                "The discrepancy for dispatch {$dispatch->dispatch_no} has been resolved by Admin."
+            );
         });
 
         return redirect()

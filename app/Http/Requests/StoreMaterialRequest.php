@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreMaterialRequest extends FormRequest
 {
@@ -20,14 +21,16 @@ class StoreMaterialRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'material_name' => 'required|string|max:255',
+            'material_name' => ['required','string','max:255',
+                Rule::unique('materials', 'material_name'),
+            ],
             'material_category_id' => 'required|exists:material_categories,id',
             'unit' => 'required|in:Kg,Liter,Piece,Gram,Milliliter,Box,Pack,Set',
             'current_stock' => 'required|integer|min:0',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'minimum_stock' => 'required|integer|min:0',
             'description' => 'nullable|string|max:1000',
-           'status' => 'required|in:Active,Inactive',
+            'status' => 'required|in:Active,Inactive',
         ];
     }
 

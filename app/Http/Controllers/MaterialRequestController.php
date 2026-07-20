@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMaterialRequestRequest;
 use App\Http\Requests\UpdateMaterialRequestRequest;
+use App\Models\AppNotification;
 use App\Models\Material;
 use App\Models\MaterialConsumption;
 use App\Models\MaterialDispatch;
@@ -95,6 +96,15 @@ class MaterialRequestController extends Controller implements HasMiddleware
                     'requested_qty' => $item['requested_qty'],
                 ]);
             }
+            $requestNo = $materialRequest->request_no;
+            $requesterName = Auth::user()->name;
+
+            AppNotification::send(
+                null,
+                'Admin',
+                'New Material Request',
+                "Kitchen staff {$requesterName} has submitted a new material request {$requestNo}."
+            );
         });
 
         return redirect()
@@ -147,6 +157,13 @@ class MaterialRequestController extends Controller implements HasMiddleware
 
             }
 
+            AppNotification::send(
+                null,
+                'Admin',
+                'Material Request Updated',
+                'Kitchen staff '.auth()->user()->name.' has updated material request '.$materialRequest->request_no.'.'
+            );
+
         });
 
         return redirect()->route('material-requests.index')->with([
@@ -160,6 +177,7 @@ class MaterialRequestController extends Controller implements HasMiddleware
      */
     public function destroy(MaterialRequest $materialRequest)
     {
+        $requestNo = $materialRequest->request_no;
         DB::transaction(function () use ($materialRequest) {
 
             $dispatches = MaterialDispatch::with('items')
@@ -190,6 +208,13 @@ class MaterialRequestController extends Controller implements HasMiddleware
             // Delete Material Request
             $materialRequest->delete();
         });
+
+        AppNotification::send(
+            null,
+            'Admin',
+            'Material Request Cancelled',
+            'Kitchen staff '.auth()->user()->name.' has deleted/cancelled material request '.$requestNo.'.'
+        );
 
         return redirect()
             ->route('material-requests.index')

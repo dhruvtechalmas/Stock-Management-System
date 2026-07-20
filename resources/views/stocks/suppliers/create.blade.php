@@ -7,7 +7,11 @@
 
             {{-- Supplier Name --}}
             <div class="col-md-12">
-                <label class="form-label">Supplier Name</label>
+                <label class="form-label">Company Name
+                    <span>
+                        <small class="text-danger">*</small>
+                    </span>
+                </label>
 
                 <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                     value="{{ old('name') }}" placeholder="Enter Supplier Name">
@@ -21,7 +25,11 @@
 
             {{-- Contact Person --}}
             <div class="col-md-12">
-                <label class="form-label">Contact Person</label>
+                <label class="form-label">Contact Person
+                     <span>
+                        <small class="text-danger">*</small>
+                    </span>
+                </label>
 
                 <input type="text" name="contact_person"
                     class="form-control @error('contact_person') is-invalid @enderror"
@@ -36,7 +44,11 @@
 
             {{-- Phone --}}
             <div class="col-md-12">
-                <label class="form-label">Phone Number</label>
+                <label class="form-label">Phone Number
+                     <span>
+                        <small class="text-danger">*</small>
+                    </span>
+                </label>
 
                 <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror"
                     value="{{ old('phone') }}" maxlength="10" inputmode="numeric" pattern="[0-9]{10}"
@@ -66,7 +78,11 @@
 
             {{-- Address --}}
             <div class="col-md-12">
-                <label class="form-label">Address</label>
+                <label class="form-label">Address
+                     <span>
+                        <small class="text-danger">*</small>
+                    </span>
+                </label>
 
                 <textarea name="address" rows="3" class="form-control @error('address') is-invalid @enderror"
                     placeholder="Enter Supplier Address">{{ old('address') }}</textarea>
@@ -80,7 +96,11 @@
 
             {{-- Status --}}
             <div class="col-md-12">
-                <label class="form-label">Status</label>
+                <label class="form-label">Status
+                     <span>
+                        <small class="text-danger">*</small>
+                    </span>
+                </label>
 
                 <select name="is_active" class="form-select @error('is_active') is-invalid @enderror">
 

@@ -38,9 +38,7 @@ class PurchaseController extends Controller implements HasMiddleware
      */
     public function index()
     {
-        $purchases = Purchase::with(['supplier', 'user'])
-            ->latest()
-            ->paginate(10);
+        $purchases = Purchase::with(['supplier', 'user'])->latest()->paginate(10);
 
         $suppliers = Supplier::where('is_active', true)->get();
 
@@ -58,7 +56,7 @@ class PurchaseController extends Controller implements HasMiddleware
      */
     public function create()
     {
-        $suppliers = Supplier::where('is_active', 1)->get();
+        $suppliers = Supplier::where('is_active', true)->get();
 
         $materials = Material::where('status', 'Active')->get();
 
@@ -79,7 +77,7 @@ class PurchaseController extends Controller implements HasMiddleware
         DB::transaction(function () use ($request) {
 
             $purchase = Purchase::create([
-                'purchase_no' => 'PUR-' . str_pad(Purchase::max('id') + 1, 6, '0', STR_PAD_LEFT),
+                'purchase_no' => 'PUR-' . str_pad((Purchase::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT),
                 'supplier_id' => $request->supplier_id,
                 'invoice_no' => $request->invoice_no,
                 'purchase_date' => $request->purchase_date,
@@ -109,13 +107,29 @@ class PurchaseController extends Controller implements HasMiddleware
                     'total_price' => $lineTotal,
                 ]);
 
+                // Increase Material Stock
+                $material = Material::findOrFail($item['material_id']);
+
+                $material->increment('current_stock', $item['quantity']);
+
+                // Stock Ledger Entry
+                StockLedger::add(
+                    $material->id,
+                    'purchase',
+                    Purchase::class,
+                    $purchase->id,
+                    $item['quantity'],       // Qty In
+                    0,                       // Qty Out
+                    $material->fresh()->current_stock,
+                    'Purchase Entry'
+                );
+
                 $grandTotal += $lineTotal;
             }
 
             $purchase->update([
                 'total_amount' => $grandTotal,
             ]);
-
         });
 
         return redirect()->route('purchases.index')->with([
@@ -252,25 +266,25 @@ class PurchaseController extends Controller implements HasMiddleware
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Purchase $purchase)
-    {
-        DB::transaction(function () use ($purchase) {
+    // public function destroy(Purchase $purchase)
+    // {
+    //     DB::transaction(function () use ($purchase) {
 
-            foreach ($purchase->items as $item) {
+    //         foreach ($purchase->items as $item) {
 
-                $material = Material::find($item->material_id);
+    //             $material = Material::find($item->material_id);
 
-                if ($material) {
-                    $material->decrement('current_stock', $item->quantity);
-                }
-            }
+    //             if ($material) {
+    //                 $material->decrement('current_stock', $item->quantity);
+    //             }
+    //         }
 
-            $purchase->delete();
-        });
+    //         $purchase->delete();
+    //     });
 
-        return redirect()->route('purchases.index')->with([
-            'message' => 'Purchase deleted successfully.',
-            'alert-type' => 'success',
-        ]);
-    }
+    //     return redirect()->route('purchases.index')->with([
+    //         'message' => 'Purchase deleted successfully.',
+    //         'alert-type' => 'success',
+    //     ]);
+    // }
 }

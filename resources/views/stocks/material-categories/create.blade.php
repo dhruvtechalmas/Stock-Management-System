@@ -7,7 +7,9 @@
 
             {{-- Category Name --}}
             <div class="col-md-12">
-                <label class="form-label">Category Name</label>
+                <label class="form-label">Category Name
+                    <span class="text-danger">*</span>
+                </label>
 
                 <input type="text"
                     name="category_name"
@@ -24,7 +26,9 @@
 
             {{-- Status --}}
             <div class="col-md-12">
-                <label class="form-label">Status</label>
+                <label class="form-label">Status
+                    <span class="text-danger">*</span>
+                </label>
 
                 <select
                     name="status"
